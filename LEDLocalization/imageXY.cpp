@@ -8,9 +8,10 @@ BYTE   *m_RGBData;
 
 void CvImageXY::ShowImage()
 {
-	img->imageSize = 1280 * 1024 * 3;
-	img->width = 1280;
-	img->height = 1024;
+	IplImage* img = cvCreateImage(cvSize(1280, 1024), IPL_DEPTH_8U, 3); // 创建单通道图像
+	//img->imageSize = 1280 * 1024 * 3;
+	//img->width = 1280;
+	//img->height = 1024;
 	memcpy(img->imageData, m_RGBData, 1280*1024 * 3);
 	//img = cvLoadImage("RawToRGBData.bmp", 1);
 	
