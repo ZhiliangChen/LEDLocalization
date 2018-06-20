@@ -12,6 +12,8 @@ public:
 	CvSeq* circles;
 	int x_center;
 	int y_center;
+	
 
 
 };
+extern BYTE   *m_RGBData;
