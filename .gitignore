@@ -6,3 +6,5 @@
 .vs/LEDLocalization/v15/.suo
 x64/Release/
 LEDLocalization/x64/Release/
+LEDLocalization/RawData.raw
+LEDLocalization/RawToRGBData.bmp
