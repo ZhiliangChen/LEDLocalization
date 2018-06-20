@@ -1,12 +1,7 @@
-﻿  stdafx.cpp
-  calibrate.cpp
-  imageXY.cpp
-  LEDLocalization.cpp
-  LEDLocalizationDlg.cpp
-  solvepnp.cpp
+﻿  LEDLocalizationDlg.cpp
   正在生成代码
-  267 of 276 functions (96.7%) were compiled, the rest were copied from previous compilation.
-    32 functions were new in current compilation
+  2 of 276 functions ( 0.7%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
     1 functions had inline decision re-evaluated but remain unchanged
   已完成代码的生成
-  LEDLocalization.vcxproj -> D:\!research\code\GitHub\LEDLocalization\x64\Release\LEDLocalization.exe
+  LEDLocalization.vcxproj -> E:\Code\GitHub\LEDLocalization\x64\Release\LEDLocalization.exe
