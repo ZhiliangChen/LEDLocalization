@@ -7,6 +7,7 @@ public:
 	void ShowImage();
 	
 	void BlobDetector();
+	void Test();
 	IplImage* img;
 	IplImage* gray;
 	CvMemStorage* storage;

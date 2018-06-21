@@ -4,9 +4,19 @@
 #include "imageXY.h"
 #include "opencv2/features2d/features2d.hpp"  //SimpleBlobDetector头文件
 #include <opencv2\opencv.hpp>//imread和imshow头文件
+#include "LEDLocalizationDlg.h"
+#include "resource.h"//引用控件名
 
 BYTE   *m_RGBData;
 
+
+
+void CvImageXY::Test()
+{
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
+	pEdit->AddString("test");
+
+}
 
 void CvImageXY::ShowImage()
 {
