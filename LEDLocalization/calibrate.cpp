@@ -16,16 +16,16 @@ using namespace std;
 void CvCalibrate::Calibrate()
 {
 	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
-	
+
 	ifstream fin("calibdata.txt"); /* 标定所用图像文件的路径 */
 	ofstream fout("caliberation_result.txt");  /* 保存标定结果的文件 */
 	//读取每一幅图像，从中提取出角点，然后对角点进行亚像素精确化	
 	pEdit->AddString("开始提取角点");
 	int image_count = 0;  /* 图像数量 */
 	Size image_size;  /* 图像的尺寸 */
-	Size board_size = Size(6, 7);    /* 标定板上每行、列的角点数 */
+	Size board_size = Size(8, 11);    /* 标定板上每行、列的角点数 ======================================标定板参数*/
 	vector<Point2f> image_points_buf;  /* 缓存每幅图像上检测到的角点 */
-	vector<vector<Point2f>> image_points_seq;/* 保存检测到的所有角点 */ 
+	vector<vector<Point2f>> image_points_seq;/* 保存检测到的所有角点 */
 
 	string filename;
 	int count = -1;//用于存储角点个数。
@@ -71,24 +71,24 @@ void CvCalibrate::Calibrate()
 	m_str.Format("total =  %d", total);
 	pEdit->AddString(m_str);
 	int CornerNum = board_size.width*board_size.height;  //每张图片上总的角点数
-	for (int ii = 0; ii<total; ii++)
+	for (int ii = 0; ii < total; ii++)
 	{
-		
-			m_str.Format("第 %d 幅图片的数据", ii+1);
-			pEdit->AddString(m_str);
-		
+
+		m_str.Format("第 %d 幅图片的数据", ii + 1);
+		pEdit->AddString(m_str);
+
 		//输出所有的角点
 		m_str.Format("x = %f,y = %f", image_points_seq[ii][1].x, image_points_seq[ii][1].y);
 		pEdit->AddString(m_str);
 	}
-	
+
 	pEdit->AddString("角点提取完成!");
-	
+
 
 	//以下是摄像机标定
 	pEdit->AddString("开始标定");
 	/*棋盘三维信息*/
-	Size square_size = Size(24, 24);  /* 实际测量得到的标定板上每个棋盘格的大小 ,单位是mm吗*/
+	Size square_size = Size(30, 30);  /* 实际测量得到的标定板上每个棋盘格的大小 ,单位是mm吗===============标定板参数*/
 	vector<vector<Point3f>> object_points; /* 保存标定板上角点的三维坐标 */
 	/*内外参数*/
 	Mat cameraMatrix = Mat(3, 3, CV_32FC1, Scalar::all(0)); /* 摄像机内参数矩阵 */
@@ -98,12 +98,12 @@ void CvCalibrate::Calibrate()
 	vector<Mat> rvecsMat; /* 每幅图像的平移向量 */
 	 /* 初始化标定板上角点的三维坐标 */
 	int i, j, t;
-	for (t = 0; t<image_count; t++)
+	for (t = 0; t < image_count; t++)
 	{
 		vector<Point3f> tempPointSet;
-		for (i = 0; i<board_size.height; i++)
+		for (i = 0; i < board_size.height; i++)
 		{
-			for (j = 0; j<board_size.width; j++)
+			for (j = 0; j < board_size.width; j++)
 			{
 				Point3f realPoint;
 				/* 假设标定板放在世界坐标系中z=0的平面上 */
@@ -116,7 +116,7 @@ void CvCalibrate::Calibrate()
 		object_points.push_back(tempPointSet);
 	}
 	/* 初始化每幅图像中的角点数量，假定每幅图像中都可以看到完整的标定板 */
-	for (i = 0; i<image_count; i++)
+	for (i = 0; i < image_count; i++)
 	{
 		point_counts.push_back(board_size.width*board_size.height);
 	}
@@ -131,7 +131,7 @@ void CvCalibrate::Calibrate()
 	double err = 0.0; /* 每幅图像的平均误差 */
 	vector<Point2f> image_points2; /* 保存重新计算得到的投影点 */
 	fout << "每幅图像的标定误差：\n";
-	for (i = 0; i<image_count; i++)
+	for (i = 0; i < image_count; i++)
 	{
 		vector<Point3f> tempPointSet = object_points[i];
 		/* 通过得到的摄像机内外参数，对空间的三维点进行重新投影计算，得到新的投影点 */
@@ -160,7 +160,7 @@ void CvCalibrate::Calibrate()
 	fout << cameraMatrix << endl << endl;
 	fout << "畸变系数：\n";
 	fout << distCoeffs << endl << endl << endl;
-	for (int i = 0; i<image_count; i++)
+	for (int i = 0; i < image_count; i++)
 	{
 		fout << "第" << i + 1 << "幅图像的旋转向量：" << endl;
 		fout << tvecsMat[i] << endl;
@@ -173,43 +173,43 @@ void CvCalibrate::Calibrate()
 	}
 	pEdit->AddString("完成保存！");
 	fout << endl;
-
-	/************************************************************************
-	显示定标结果
-	*************************************************************************/
-	Mat mapx = Mat(image_size, CV_32FC1);
-	Mat mapy = Mat(image_size, CV_32FC1);
-	Mat R = Mat::eye(3, 3, CV_32F);
-	pEdit->AddString("保存矫正图像！");
-	string imageFileName;
-	std::stringstream StrStm;
-	for (int i = 0; i != image_count; i++)
-	{
-		m_str.Format("Frame # %d", i + 1);
-		pEdit->AddString(m_str);
-
-		initUndistortRectifyMap(cameraMatrix, distCoeffs, R, cameraMatrix, image_size, CV_32FC1, mapx, mapy);
-		StrStm.clear();
-		imageFileName.clear();
-		string filePath = "chess";
-		StrStm << i + 1;
-		StrStm >> imageFileName;
-		filePath += imageFileName;
-		filePath += ".bmp";
-		Mat imageSource = imread(filePath);
-		Mat newimage = imageSource.clone();
-		//另一种不需要转换矩阵的方式
-		//undistort(imageSource,newimage,cameraMatrix,distCoeffs);
-		remap(imageSource, newimage, mapx, mapy, INTER_LINEAR);
-		imshow("原始图像", imageSource);
-		imshow("矫正后图像", newimage);
-		waitKey(500);//暂停0.5S		
-		StrStm.clear();
-		filePath.clear();
-		StrStm << i + 1;
-		StrStm >> imageFileName;
-		imageFileName += "_d.jpg";
-		imwrite(imageFileName, newimage);
-	}
-	pEdit->AddString("保存结束！");
 }
+	/************************************************************************
+	显示定标结果，矫正畸变后的结果
+	*************************************************************************/
+//	Mat mapx = Mat(image_size, CV_32FC1);
+//	Mat mapy = Mat(image_size, CV_32FC1);
+//	Mat R = Mat::eye(3, 3, CV_32F);
+//	pEdit->AddString("保存矫正图像！");
+//	string imageFileName;
+//	std::stringstream StrStm;
+//	for (int i = 0; i != image_count; i++)
+//	{
+//		m_str.Format("Frame # %d", i + 1);
+//		pEdit->AddString(m_str);
+//
+//		initUndistortRectifyMap(cameraMatrix, distCoeffs, R, cameraMatrix, image_size, CV_32FC1, mapx, mapy);
+//		StrStm.clear();
+//		imageFileName.clear();
+//		string filePath = "chess";
+//		StrStm << i + 1;
+//		StrStm >> imageFileName;
+//		filePath += imageFileName;
+//		filePath += ".bmp";
+//		Mat imageSource = imread(filePath);
+//		Mat newimage = imageSource.clone();
+//		//另一种不需要转换矩阵的方式
+//		//undistort(imageSource,newimage,cameraMatrix,distCoeffs);
+//		remap(imageSource, newimage, mapx, mapy, INTER_LINEAR);
+//		imshow("原始图像", imageSource);
+//		imshow("矫正后图像", newimage);
+//		waitKey(500);//暂停0.5S		
+//		StrStm.clear();
+//		filePath.clear();
+//		StrStm << i + 1;
+//		StrStm >> imageFileName;
+//		imageFileName += "_d.jpg";
+//		imwrite(imageFileName, newimage);
+//	}
+//	pEdit->AddString("保存结束！");
+//}
