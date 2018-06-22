@@ -5,17 +5,7 @@ class CvCalibrate
 public:
 	void Calibrate();
 
-	void BlobDetector();
-	IplImage* img;
-	IplImage* gray;
-	CvMemStorage* storage;
-	CvSeq* circles;
-	int x_center;
-	int y_center;
-	float test;
-	float img_point[15][2];
-
+	CString m_str;
 
 
 };
-extern BYTE   *m_RGBData;

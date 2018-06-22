@@ -7,21 +7,23 @@
 #include <iostream>
 #include <fstream>
 #include "calibrate.h"
-#include "LEDLocalizationDlg.h"
-
+#include "LEDLocalizationDlg.h"//临时用，在listbox显示calibrate的进度
+#include "resource.h"//临时用，引用控件名
 
 using namespace cv;
 using namespace std;
 
 void CvCalibrate::Calibrate()
 {
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
+	
 	ifstream fin("calibdata.txt"); /* 标定所用图像文件的路径 */
 	ofstream fout("caliberation_result.txt");  /* 保存标定结果的文件 */
 	//读取每一幅图像，从中提取出角点，然后对角点进行亚像素精确化	
-	cout << "开始提取角点………………";
+	pEdit->AddString("开始提取角点");
 	int image_count = 0;  /* 图像数量 */
 	Size image_size;  /* 图像的尺寸 */
-	Size board_size = Size(4, 6);    /* 标定板上每行、列的角点数 */
+	Size board_size = Size(6, 7);    /* 标定板上每行、列的角点数 */
 	vector<Point2f> image_points_buf;  /* 缓存每幅图像上检测到的角点 */
 	vector<vector<Point2f>> image_points_seq;/* 保存检测到的所有角点 */ 
 
@@ -31,22 +33,25 @@ void CvCalibrate::Calibrate()
 	{
 		image_count++;
 		// 用于观察检验输出
-		cout << "image_count = " << image_count << endl;
+		m_str.Format("image_count = %d", image_count);
+		pEdit->AddString(m_str);
 		/* 输出检验*/
-		cout << "-->count = " << count;
+		//cout << "-->count = " << count;
 		Mat imageInput = imread(filename);
 		if (image_count == 1)  //读入第一张图片时获取图像宽高信息
 		{
 			image_size.width = imageInput.cols;
 			image_size.height = imageInput.rows;
-			cout << "image_size.width = " << image_size.width << endl;
-			cout << "image_size.height = " << image_size.height << endl;
+			m_str.Format("image_size.width = %f", image_size.width);
+			pEdit->AddString(m_str);
+			m_str.Format("image_size.height = %f", image_size.height);
+			pEdit->AddString(m_str);
 		}
 
 		/* 提取角点 */
 		if (0 == findChessboardCorners(imageInput, board_size, image_points_buf))
 		{
-			cout << "can not find chessboard corners!\n"; //找不到角点
+			pEdit->AddString("can not find chessboard corners!");//找不到角点
 			exit(1);
 		}
 		else
@@ -62,38 +67,30 @@ void CvCalibrate::Calibrate()
 			waitKey(500);//暂停0.5S		
 		}
 	}
-	int total = image_points_seq.size();
-	cout << "total = " << total << endl;
+	int total = image_points_seq.size();//所有角点个数
+	m_str.Format("total =  %d", total);
+	pEdit->AddString(m_str);
 	int CornerNum = board_size.width*board_size.height;  //每张图片上总的角点数
 	for (int ii = 0; ii<total; ii++)
 	{
-		if (0 == ii % CornerNum)// 24 是每幅图片的角点个数。此判断语句是为了输出 图片号，便于控制台观看 
-		{
-			int i = -1;
-			i = ii / CornerNum;
-			int j = i + 1;
-			cout << "--> 第 " << j << "图片的数据 --> : " << endl;
-		}
-		if (0 == ii % 3)	// 此判断语句，格式化输出，便于控制台查看
-		{
-			cout << endl;
-		}
-		else
-		{
-			cout.width(10);
-		}
+		
+			m_str.Format("第 %d 幅图片的数据", ii+1);
+			pEdit->AddString(m_str);
+		
 		//输出所有的角点
-		cout << " -->" << image_points_seq[ii][0].x;
-		cout << " -->" << image_points_seq[ii][0].y;
+		m_str.Format("x = %f,y = %f", image_points_seq[ii][1].x, image_points_seq[ii][1].y);
+		pEdit->AddString(m_str);
 	}
-	cout << "角点提取完成！\n";
+	
+	pEdit->AddString("角点提取完成!");
+	
 
 	//以下是摄像机标定
-	cout << "开始标定………………";
+	pEdit->AddString("开始标定");
 	/*棋盘三维信息*/
-	Size square_size = Size(10, 10);  /* 实际测量得到的标定板上每个棋盘格的大小 */
+	Size square_size = Size(24, 24);  /* 实际测量得到的标定板上每个棋盘格的大小 ,单位是mm吗*/
 	vector<vector<Point3f>> object_points; /* 保存标定板上角点的三维坐标 */
-										   /*内外参数*/
+	/*内外参数*/
 	Mat cameraMatrix = Mat(3, 3, CV_32FC1, Scalar::all(0)); /* 摄像机内参数矩阵 */
 	vector<int> point_counts;  // 每幅图像中角点的数量
 	Mat distCoeffs = Mat(1, 5, CV_32FC1, Scalar::all(0)); /* 摄像机的5个畸变系数：k1,k2,p1,p2,k3 */
@@ -125,13 +122,14 @@ void CvCalibrate::Calibrate()
 	}
 	/* 开始标定 */
 	calibrateCamera(object_points, image_points_seq, image_size, cameraMatrix, distCoeffs, rvecsMat, tvecsMat, 0);
-	cout << "标定完成！\n";
+	pEdit->AddString("标定完成！");
+
+
 	//对标定结果进行评价
-	cout << "开始评价标定结果………………\n";
+	pEdit->AddString("开始评价标定结果！");
 	double total_err = 0.0; /* 所有图像的平均误差的总和 */
 	double err = 0.0; /* 每幅图像的平均误差 */
 	vector<Point2f> image_points2; /* 保存重新计算得到的投影点 */
-	cout << "\t每幅图像的标定误差：\n";
 	fout << "每幅图像的标定误差：\n";
 	for (i = 0; i<image_count; i++)
 	{
@@ -149,14 +147,14 @@ void CvCalibrate::Calibrate()
 		}
 		err = norm(image_points2Mat, tempImagePointMat, NORM_L2);
 		total_err += err /= point_counts[i];
-		std::cout << "第" << i + 1 << "幅图像的平均误差：" << err << "像素" << endl;
 		fout << "第" << i + 1 << "幅图像的平均误差：" << err << "像素" << endl;
 	}
-	std::cout << "总体平均误差：" << total_err / image_count << "像素" << endl;
 	fout << "总体平均误差：" << total_err / image_count << "像素" << endl << endl;
-	std::cout << "评价完成！" << endl;
+	pEdit->AddString("评价完成！");
+
+
 	//保存定标结果  	
-	std::cout << "开始保存定标结果………………" << endl;
+	pEdit->AddString("开始保存定标结果！");
 	Mat rotation_matrix = Mat(3, 3, CV_32FC1, Scalar::all(0)); /* 保存每幅图像的旋转矩阵 */
 	fout << "相机内参数矩阵：" << endl;
 	fout << cameraMatrix << endl << endl;
@@ -173,20 +171,23 @@ void CvCalibrate::Calibrate()
 		fout << "第" << i + 1 << "幅图像的平移向量：" << endl;
 		fout << rvecsMat[i] << endl << endl;
 	}
-	std::cout << "完成保存" << endl;
+	pEdit->AddString("完成保存！");
 	fout << endl;
+
 	/************************************************************************
 	显示定标结果
 	*************************************************************************/
 	Mat mapx = Mat(image_size, CV_32FC1);
 	Mat mapy = Mat(image_size, CV_32FC1);
 	Mat R = Mat::eye(3, 3, CV_32F);
-	std::cout << "保存矫正图像" << endl;
+	pEdit->AddString("保存矫正图像！");
 	string imageFileName;
 	std::stringstream StrStm;
 	for (int i = 0; i != image_count; i++)
 	{
-		std::cout << "Frame #" << i + 1 << "..." << endl;
+		m_str.Format("Frame # %d", i + 1);
+		pEdit->AddString(m_str);
+
 		initUndistortRectifyMap(cameraMatrix, distCoeffs, R, cameraMatrix, image_size, CV_32FC1, mapx, mapy);
 		StrStm.clear();
 		imageFileName.clear();
@@ -202,7 +203,7 @@ void CvCalibrate::Calibrate()
 		remap(imageSource, newimage, mapx, mapy, INTER_LINEAR);
 		imshow("原始图像", imageSource);
 		imshow("矫正后图像", newimage);
-		waitKey();
+		waitKey(500);//暂停0.5S		
 		StrStm.clear();
 		filePath.clear();
 		StrStm << i + 1;
@@ -210,6 +211,5 @@ void CvCalibrate::Calibrate()
 		imageFileName += "_d.jpg";
 		imwrite(imageFileName, newimage);
 	}
-	std::cout << "保存结束" << endl;
-	
+	pEdit->AddString("保存结束！");
 }
