@@ -3,6 +3,12 @@
 #include <math.h>
 #include <iostream>
 #include <fstream>
+#include "solvepnp.h"
+#include "calibrate.h"
+#include "imageXY.h"
+#include "LEDLocalizationDlg.h"//临时用，在listbox显示calibrate的进度
+#include "resource.h"//临时用，引用控件名
+
 using namespace std;
 
 //将空间点绕Z轴旋转
@@ -60,58 +66,71 @@ cv::Point3f RotateByVector(double old_x, double old_y, double old_z, double vx, 
 	double new_z = (vx*vz*(1 - c) - vy * s) * old_x + (vy*vz*(1 - c) + vx * s) * old_y + (vz*vz*(1 - c) + c) * old_z;
 	return cv::Point3f(new_x, new_y, new_z);
 }
-void test();
-
-int main()
+//比较函数，这里的元素类型要与vector存储的类型一致
+bool compare_x(cv::Point2f a, cv::Point2f b)
 {
-	vector<cv::Point2f> Points2D;
-	/****************a6000参数**********************/
-	//初始化相机参数Opencv
-	double camD[9] = {
-		6800.7, 0, 3065.8,
-		0, 6798.1, 1667.6,
-		0, 0, 1 };
-	cv::Mat camera_matrix = cv::Mat(3, 3, CV_64FC1, camD);
+	return a.x<b.x; //升序排列
+}
+bool compare_y(cv::Point2f a, cv::Point2f b)
+{
+	return a.y<b.y; //升序排列
+}
 
-	//畸变参数
-	double distCoeffD[5] = { -0.189314, 0.444657, -0.00116176, 0.00164877, -2.57547 };
-	cv::Mat distortion_coefficients = cv::Mat(5, 1, CV_64FC1, distCoeffD);
+void CvSlovePNP::Test()
+{
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
+	std::vector<cv::Point2f> Points2D;
+	for (int i = 5; i<15; i++)
+	{
+		Points2D.push_back(detectKeyPoint[i].pt);
+		m_str.Format("%f", Points2D[i-5].x);
+		pEdit->AddString(m_str);
+	}
 
-	//P1-P4为XOY面上的共面点其Z坐标为0，P5的Z坐标不为0
+}
 
-	//测试用图1 DSC03321
-	Points2D.push_back(cv::Point2f(2985, 1688));	//P1
-	Points2D.push_back(cv::Point2f(5081, 1690));	//P2
-	Points2D.push_back(cv::Point2f(2997, 2797));	//P3
-													//Points2D.push_back(cv::Point2f(5544, 2757));	//P4
-	Points2D.push_back(cv::Point2f(4148, 673));	//P5
+void CvSlovePNP::SlovePNP()
+{
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
 
-												////测试用图2 DSC03323
-												//Points2D.push_back(cv::Point2f(3062, 3073));	//P1
-												//Points2D.push_back(cv::Point2f(3809, 3089));	//P2
-												//Points2D.push_back(cv::Point2f(3035, 3208));	//P3
-												////p4psolver2.Points2D.push_back(cv::Point2f(3838, 3217));	//P4
-												//Points2D.push_back(cv::Point2f(3439, 2691));	//P5
+	std::vector<cv::Point2f> Points2D;
+	std::vector<cv::Point2f> temp;
+	
+	
+	for(int i = 5;i<15;i++)
+	{
+		Points2D.push_back(detectKeyPoint[i].pt);
+	}
+	std::sort(Points2D.begin(), Points2D.end(), compare_x);
+	std::sort(Points2D.begin(), Points2D.begin()+3, compare_y);
+	std::sort(Points2D.begin()+3, Points2D.begin()+7, compare_y);
+	std::sort(Points2D.begin()+7, Points2D.end(), compare_y);
 
-												//特征点世界坐标
-	vector<cv::Point3f> Points3D;
-	Points3D.push_back(cv::Point3f(0, 0, 0));		//P1 三维坐标的单位是毫米
-	Points3D.push_back(cv::Point3f(0, 200, 0));		//P2
-	Points3D.push_back(cv::Point3f(150, 0, 0));		//P3
-													//Points3D.push_back(cv::Point3f(150, 200, 0));	//P4
-	Points3D.push_back(cv::Point3f(0, 100, 105));	//P5
 
-													//初始化输出矩阵
+	//特征点世界坐标
+	std::vector<cv::Point3f> Points3D;
+	Points3D.push_back(cv::Point3f(-150, 150, 100));		//P1 三维坐标的单位是毫米
+	Points3D.push_back(cv::Point3f(-150, 0, 100));		//P2
+	Points3D.push_back(cv::Point3f(-150, -150, 100));		//P3
+	Points3D.push_back(cv::Point3f(0, 100, 0));	//P4
+	Points3D.push_back(cv::Point3f(0, 40, 0));	//P5
+	Points3D.push_back(cv::Point3f(0, -70, 0));
+	Points3D.push_back(cv::Point3f(0, -195, 0));
+	Points3D.push_back(cv::Point3f(150, 150, 100));
+	Points3D.push_back(cv::Point3f(150, 0, 100));
+	Points3D.push_back(cv::Point3f(150, -150, 100));
+
+	//初始化输出矩阵
 	cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
 	cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
 
 	//三种方法求解
-	//solvePnP(Points3D, Points2D, camera_matrix, distortion_coefficients, rvec, tvec, false, CV_ITERATIVE);	//实测迭代法似乎只能用4个共面特征点求解，5个点或非共面4点解不出正确的解
-	solvePnP(Points3D, Points2D, camera_matrix, distortion_coefficients, rvec, tvec, false, CV_P3P);			//Gao的方法可以使用任意四个特征点，特征点数量不能少于4也不能多于4
-																												//solvePnP(Points3D, Points2D, camera_matrix, distortion_coefficients, rvec, tvec, false, CV_EPNP);			//该方法可以用于N点位姿估计
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);	//实测迭代法似乎只能用4个共面特征点求解，5个点或非共面4点解不出正确的解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_P3P);			//Gao的方法可以使用任意四个特征点，特征点数量不能少于4也不能多于4
+	solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_EPNP);			//该方法可以用于N点位姿估计
 
-																												//旋转向量变旋转矩阵
-																												//提取旋转矩阵
+	//旋转向量变旋转矩阵
+	//提取旋转矩阵
 	double rm[9];
 	cv::Mat rotM(3, 3, CV_64FC1, rm);
 	Rodrigues(rvec, rotM);
@@ -135,13 +154,9 @@ int main()
 
 	ofstream fout("D:\\pnp_theta.txt");
 	fout << -1 * thetax << endl << -1 * thetay << endl << -1 * thetaz << endl;
-	cout << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
+	//cout << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
 	fout.close();
 	/*************************************此处计算出相机的旋转角END**********************************************/
-
-
-
-
 
 
 	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置**********************************************/
@@ -173,26 +188,22 @@ int main()
 	double Cz = z * -1;
 
 	ofstream fout2("D:\\pnp_t.txt");
-	fout2 << Cx << endl << Cy << endl << Cz << endl;
-	cout << "相机的世界坐标：" << Cx << ", " << Cy << ", " << Cz << endl;
+	fout2 << Cx << std::endl << Cy << endl << Cz << endl;
+	//cout << "相机的世界坐标：" << Cx << ", " << Cy << ", " << Cz << endl;
 	fout2.close();
 	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置END**********************************************/
 
 
 
 
-
-
-
 	//重投影测试位姿解是否正确
-	vector<cv::Point2f> projectedPoints;
+	std::vector<cv::Point2f> projectedPoints;
 	Points3D.push_back(cv::Point3f(0, 100, 105));
-	cv::projectPoints(Points3D, rvec, tvec, camera_matrix, distortion_coefficients, projectedPoints);
+	cv::projectPoints(Points3D, rvec, tvec, cameraMatrix, distCoeffs, projectedPoints);
 
 
 
-	test();
-	return 0;
+	//test();
 }
 
 

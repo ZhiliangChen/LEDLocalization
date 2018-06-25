@@ -1,4 +1,5 @@
 #pragma once
+#include "opencv2/highgui/highgui.hpp"
 class CvCalibrate
 {
 
@@ -9,3 +10,5 @@ public:
 
 
 };
+extern cv::Mat cameraMatrix;
+extern cv::Mat distCoeffs;

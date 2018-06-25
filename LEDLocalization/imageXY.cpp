@@ -8,7 +8,7 @@
 #include "resource.h"//引用控件名
 
 BYTE   *m_RGBData;
-
+std::vector<cv::KeyPoint> detectKeyPoint;
 
 
 void CvImageXY::Test()
@@ -76,7 +76,6 @@ void CvImageXY::BlobDetector()
 		imgg.copyTo(srcGrayImage);
 	}
 	
-	std::vector<cv::KeyPoint>detectKeyPoint;
 	cv::Mat keyPointImage1, keyPointImage2;
 
 	cv::SimpleBlobDetector::Params params;

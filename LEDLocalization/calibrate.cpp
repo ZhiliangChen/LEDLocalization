@@ -1,9 +1,9 @@
 
 #include "stdafx.h"
-#include "opencv2/core/core.hpp"
+//#include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
-#include "opencv2/highgui/highgui.hpp"
+//#include "opencv2/highgui/highgui.hpp"
 #include <iostream>
 #include <fstream>
 #include "calibrate.h"
@@ -12,6 +12,10 @@
 
 using namespace cv;
 using namespace std;
+
+cv::Mat cameraMatrix;
+cv::Mat distCoeffs;
+
 
 void CvCalibrate::Calibrate()
 {
@@ -64,7 +68,7 @@ void CvCalibrate::Calibrate()
 			/* 在图像上显示角点位置 */
 			drawChessboardCorners(view_gray, board_size, image_points_buf, true); //用于在图片中标记角点
 			imshow("Camera Calibration", view_gray);//显示图片
-			waitKey(500);//暂停0.5S		
+			waitKey(100);//暂停0.5S		
 		}
 	}
 	int total = image_points_seq.size();//所有角点个数
@@ -91,9 +95,9 @@ void CvCalibrate::Calibrate()
 	Size square_size = Size(30, 30);  /* 实际测量得到的标定板上每个棋盘格的大小 ,单位是mm吗===============标定板参数*/
 	vector<vector<Point3f>> object_points; /* 保存标定板上角点的三维坐标 */
 	/*内外参数*/
-	Mat cameraMatrix = Mat(3, 3, CV_32FC1, Scalar::all(0)); /* 摄像机内参数矩阵 */
+	cameraMatrix = Mat(3, 3, CV_32FC1, Scalar::all(0)); /* 摄像机内参数矩阵 */
 	vector<int> point_counts;  // 每幅图像中角点的数量
-	Mat distCoeffs = Mat(1, 5, CV_32FC1, Scalar::all(0)); /* 摄像机的5个畸变系数：k1,k2,p1,p2,k3 */
+	distCoeffs = Mat(5, 1, CV_32FC1, Scalar::all(0)); /* 摄像机的5个畸变系数：k1,k2,p1,p2,k3 */
 	vector<Mat> tvecsMat;  /* 每幅图像的旋转向量 */
 	vector<Mat> rvecsMat; /* 每幅图像的平移向量 */
 	 /* 初始化标定板上角点的三维坐标 */
