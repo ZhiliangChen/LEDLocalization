@@ -144,7 +144,7 @@ void CvImageXY::BlobDetector_static()
 
 	cv::Ptr<cv::SimpleBlobDetector> sbd = cv::SimpleBlobDetector::create(params);
 	//sbd->create("SimpleBlob");
-	sbd->detect(imgg, detectKeyPoint);
+	sbd->detect(srcGrayImage, detectKeyPoint);
 	for (int i = 0; i < 15; i++)
 	{
 		img_point[i][0] = detectKeyPoint[i].pt.x;
@@ -152,10 +152,10 @@ void CvImageXY::BlobDetector_static()
 	}
 	//test = detectKeyPoint[1].pt.y;
 	//test = params.maxThreshold;
-	drawKeypoints(imgg, detectKeyPoint, keyPointImage1, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-	drawKeypoints(imgg, detectKeyPoint, keyPointImage2, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DEFAULT);
+	drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage1, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+	drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage2, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DEFAULT);
 
-	imshow("src image", imgg);
+	imshow("src image", srcGrayImage);
 	imshow("keyPoint image1", keyPointImage1);
 	imshow("keyPoint image2", keyPointImage2);
 
