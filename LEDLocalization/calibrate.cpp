@@ -176,6 +176,7 @@ void CvCalibrate::Calibrate()
 		fout << rvecsMat[i] << endl << endl;
 	}
 	pEdit->AddString("Íê³É±£´æ£¡");
+	pEdit->SetCurSel(pEdit->GetCount() - 1);
 	fout << endl;
 }
 	/************************************************************************

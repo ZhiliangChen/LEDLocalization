@@ -13,9 +13,12 @@ std::vector<cv::KeyPoint> detectKeyPoint;
 
 void CvImageXY::Test()
 {
-	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
-	pEdit->AddString("test");
+	/*CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
+	pEdit->AddString("test");*/
 
+	cv::Mat image(cvSize(1280, 1024), CV_8UC3, cv::Scalar(0));
+	memcpy(image.data, m_RGBData, 1280 * 1024 * 3);
+	imshow("src image", image);
 }
 
 void CvImageXY::ShowImage()
@@ -67,6 +70,7 @@ void CvImageXY::BlobDetector()
 	int i;
 	cv::Mat imgg = cv::imread("test.jpg", 1);
 	cv::Mat srcGrayImage;
+	
 	if (imgg.channels() == 3)
 	{
 		cvtColor(imgg, srcGrayImage, CV_RGB2GRAY);
@@ -79,7 +83,7 @@ void CvImageXY::BlobDetector()
 	cv::Mat keyPointImage1, keyPointImage2;
 
 	cv::SimpleBlobDetector::Params params;
-	
+	//params.filterByInertia = true;
 	//params.filterByColor = true;
 	params.blobColor = 255;
 	//params.filterByArea = true;

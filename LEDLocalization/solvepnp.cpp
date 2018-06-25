@@ -151,11 +151,18 @@ void CvSlovePNP::SlovePNP()
 	double thetaz = atan2(r21, r11) / CV_PI * 180;
 	double thetay = atan2(-1 * r31, sqrt(r32*r32 + r33 * r33)) / CV_PI * 180;
 	double thetax = atan2(r32, r33) / CV_PI * 180;
+	double thetaz_out = -thetaz;
+	double thetay_out = -thetay;
+	double thetax_out = -thetax;
 
-	ofstream fout("D:\\pnp_theta.txt");
-	fout << -1 * thetax << endl << -1 * thetay << endl << -1 * thetaz << endl;
-	//cout << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
-	fout.close();
+	//ofstream fout("D:\\pnp_theta.txt");
+	//fout << -1 * thetax << endl << -1 * thetay << endl << -1 * thetaz << endl;
+	////cout << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
+	//fout.close();
+
+	m_str.Format("相机的三轴旋转角 x: %f, y: %f, z: %f", thetax_out, thetay_out, thetaz_out);
+	pEdit->AddString(m_str);
+	
 	/*************************************此处计算出相机的旋转角END**********************************************/
 
 
@@ -187,10 +194,15 @@ void CvSlovePNP::SlovePNP()
 	double Cy = y * -1;
 	double Cz = z * -1;
 
-	ofstream fout2("D:\\pnp_t.txt");
-	fout2 << Cx << std::endl << Cy << endl << Cz << endl;
-	//cout << "相机的世界坐标：" << Cx << ", " << Cy << ", " << Cz << endl;
-	fout2.close();
+	//ofstream fout2("D:\\pnp_t.txt");
+	//fout2 << Cx << std::endl << Cy << endl << Cz << endl;
+	////cout << "相机的世界坐标：" << Cx << ", " << Cy << ", " << Cz << endl;
+	//fout2.close();
+
+	m_str.Format("相机的世界坐标 x: %lf, y: %lf, z: %lf", Cx, Cy, Cz);
+	pEdit->AddString(m_str);
+	pEdit->SetCurSel(pEdit->GetCount() - 1);
+	
 	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置END**********************************************/
 
 
