@@ -88,7 +88,7 @@ void CvImageXY::BlobDetector()
 	cv::Mat keyPointImage1, keyPointImage2;
 
 	cv::SimpleBlobDetector::Params params;
-	//params.filterByInertia = true;
+	params.filterByInertia = true;
 	//params.filterByColor = true;
 	params.blobColor = 255;
 	params.filterByArea = true;
@@ -133,10 +133,10 @@ void CvImageXY::BlobDetector_static()
 	cv::Mat keyPointImage1, keyPointImage2;
 
 	cv::SimpleBlobDetector::Params params;
-	//params.filterByInertia = true;
+	params.filterByInertia = true;
 	//params.filterByColor = true;
 	params.blobColor = 255;
-	params.filterByArea = true;
+	//params.filterByArea = true;
 	params.minThreshold = 50;
 	params.minArea = 1;
 	params.thresholdStep = 1;
