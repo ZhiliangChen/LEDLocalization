@@ -15,10 +15,13 @@ void CvImageXY::Test()
 {
 	/*CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
 	pEdit->AddString("test");*/
-
+	cv::Mat image_fliped;
 	cv::Mat image(cvSize(1280, 1024), CV_8UC3, cv::Scalar(0));
 	memcpy(image.data, m_RGBData, 1280 * 1024 * 3);
-	imshow("src image", image);
+	cv::flip(image, image_fliped, 0);
+	imshow("src image", image_fliped);
+	
+
 }
 
 void CvImageXY::ShowImage()
@@ -67,17 +70,19 @@ void CvImageXY::ShowImage()
 
 void CvImageXY::BlobDetector()
 {
-	int i;
-	cv::Mat imgg = cv::imread("test.jpg", 1);
+	cv::Mat image_fliped;
+	cv::Mat image(cvSize(1280, 1024), CV_8UC3, cv::Scalar(0));
+	memcpy(image.data, m_RGBData, 1280 * 1024 * 3);
+	cv::flip(image, image_fliped, 0);
 	cv::Mat srcGrayImage;
 	
-	if (imgg.channels() == 3)
+	if (image_fliped.channels() == 3)
 	{
-		cvtColor(imgg, srcGrayImage, CV_RGB2GRAY);
+		cvtColor(image_fliped, srcGrayImage, CV_RGB2GRAY);
 	}
 	else
 	{
-		imgg.copyTo(srcGrayImage);
+		image_fliped.copyTo(srcGrayImage);
 	}
 	
 	cv::Mat keyPointImage1, keyPointImage2;
@@ -86,7 +91,52 @@ void CvImageXY::BlobDetector()
 	//params.filterByInertia = true;
 	//params.filterByColor = true;
 	params.blobColor = 255;
-	//params.filterByArea = true;
+	params.filterByArea = true;
+	params.minThreshold = 50;
+	params.minArea = 1;
+	params.thresholdStep = 1;
+	params.minDistBetweenBlobs = 1;
+
+	cv::Ptr<cv::SimpleBlobDetector> sbd = cv::SimpleBlobDetector::create(params);
+	//sbd->create("SimpleBlob");
+	sbd->detect(srcGrayImage, detectKeyPoint);
+	for (int i = 0; i < 15; i++)
+	{
+		img_point[i][0] = detectKeyPoint[i].pt.x;
+		img_point[i][1] = detectKeyPoint[i].pt.y;
+	}
+	//test = detectKeyPoint[1].pt.y;
+	//test = params.maxThreshold;
+	drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage1, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+	drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage2, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DEFAULT);
+
+	imshow("src image", srcGrayImage);
+	imshow("keyPoint image1", keyPointImage1);
+	imshow("keyPoint image2", keyPointImage2);
+
+
+}
+void CvImageXY::BlobDetector_static()
+{
+	cv::Mat imgg = cv::imread("test.jpg", 1);
+	cv::Mat srcGrayImage;
+
+	if (imgg.channels() == 3)
+	{
+		cvtColor(imgg, srcGrayImage, CV_RGB2GRAY);
+	}
+	else
+	{
+		imgg.copyTo(srcGrayImage);
+	}
+
+	cv::Mat keyPointImage1, keyPointImage2;
+
+	cv::SimpleBlobDetector::Params params;
+	//params.filterByInertia = true;
+	//params.filterByColor = true;
+	params.blobColor = 255;
+	params.filterByArea = true;
 	params.minThreshold = 50;
 	params.minArea = 1;
 	params.thresholdStep = 1;
@@ -95,7 +145,7 @@ void CvImageXY::BlobDetector()
 	cv::Ptr<cv::SimpleBlobDetector> sbd = cv::SimpleBlobDetector::create(params);
 	//sbd->create("SimpleBlob");
 	sbd->detect(imgg, detectKeyPoint);
-	for (i = 0; i < 15; i++)
+	for (int i = 0; i < 15; i++)
 	{
 		img_point[i][0] = detectKeyPoint[i].pt.x;
 		img_point[i][1] = detectKeyPoint[i].pt.y;
