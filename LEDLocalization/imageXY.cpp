@@ -103,11 +103,11 @@ void CvImageXY::BlobDetector()
 
 	//test = detectKeyPoint[1].pt.y;
 	//test = params.maxThreshold;
-	drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage1, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+	//drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage1, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 	drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage2, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DEFAULT);
 
-	imshow("src image", srcGrayImage);
-	imshow("keyPoint image1", keyPointImage1);
+	//imshow("src image", srcGrayImage);
+	//imshow("keyPoint image1", keyPointImage1);
 	imshow("keyPoint image2", keyPointImage2);
 
 
@@ -144,11 +144,11 @@ void CvImageXY::BlobDetector_static()
 	
 	//test = detectKeyPoint[1].pt.y;
 	//test = params.maxThreshold;
-	drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage1, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+	//drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage1, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 	drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage2, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DEFAULT);
 
-	imshow("src image", srcGrayImage);
-	imshow("keyPoint image1", keyPointImage1);
+	//imshow("src image", srcGrayImage);
+	//imshow("keyPoint image1", keyPointImage1);
 	imshow("keyPoint image2", keyPointImage2);
 
 
