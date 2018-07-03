@@ -101,10 +101,10 @@ void CvSlovePNP::SlovePNP()
 	{
 		Points2D.push_back(detectKeyPoint[i].pt);
 	}
-	std::sort(Points2D.begin(), Points2D.end(), compare_x);
-	std::sort(Points2D.begin(), Points2D.begin()+3, compare_y);
+	std::sort(Points2D.begin(), Points2D.end(), compare_x);//按x坐标值大小升序排列
+	std::sort(Points2D.begin(), Points2D.begin()+3, compare_y);//x坐标值最小的3个点，按照y坐标值升序排列
 	std::sort(Points2D.begin()+3, Points2D.begin()+7, compare_y);
-	std::sort(Points2D.begin()+7, Points2D.end(), compare_y);
+	std::sort(Points2D.begin()+7, Points2D.end(), compare_y);//x坐标值最大的3个点，按照y坐标值升序排列
 
 
 	//特征点世界坐标
