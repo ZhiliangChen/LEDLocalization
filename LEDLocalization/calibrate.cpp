@@ -13,8 +13,11 @@
 using namespace cv;
 using namespace std;
 
-cv::Mat cameraMatrix;
-cv::Mat distCoeffs;
+//相机内外参数初始化赋值
+float cameraMatrix_init[3][3] = { {1152.195197178761, 0, 611.574705796087},{ 0, 1152.841197789385, 502.5554719939521 },{ 0, 0, 1 } };
+float distCoeffs_init[5][1] = { { -0.2132339464479368 },{ 0.3584186449258908 },{ -0.00121915745714334 },{ -0.001944591250376644 },{ -0.07942466741526423 } };
+cv::Mat cameraMatrix = cv::Mat(3, 3, CV_32FC1, cameraMatrix_init); /* 摄像机内参数矩阵 */
+cv::Mat distCoeffs = cv::Mat(5, 1, CV_32FC1, distCoeffs_init); /* 摄像机的5个畸变系数：k1,k2,p1,p2,k3 */
 
 
 void CvCalibrate::Calibrate()
@@ -95,9 +98,9 @@ void CvCalibrate::Calibrate()
 	Size square_size = Size(30, 30);  /* 实际测量得到的标定板上每个棋盘格的大小 ,单位是mm吗===============标定板参数*/
 	vector<vector<Point3f>> object_points; /* 保存标定板上角点的三维坐标 */
 	/*内外参数*/
-	cameraMatrix = Mat(3, 3, CV_32FC1, Scalar::all(0)); /* 摄像机内参数矩阵 */
+	//cameraMatrix = Mat(3, 3, CV_32FC1, Scalar::all(0)); /* 摄像机内参数矩阵 */
 	vector<int> point_counts;  // 每幅图像中角点的数量
-	distCoeffs = Mat(5, 1, CV_32FC1, Scalar::all(0)); /* 摄像机的5个畸变系数：k1,k2,p1,p2,k3 */
+	//distCoeffs = Mat(5, 1, CV_32FC1, Scalar::all(0)); /* 摄像机的5个畸变系数：k1,k2,p1,p2,k3 */
 	vector<Mat> tvecsMat;  /* 每幅图像的旋转向量 */
 	vector<Mat> rvecsMat; /* 每幅图像的平移向量 */
 	 /* 初始化标定板上角点的三维坐标 */
