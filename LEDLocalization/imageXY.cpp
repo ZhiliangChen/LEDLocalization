@@ -9,19 +9,22 @@
 
 BYTE   *m_RGBData;
 std::vector<cv::KeyPoint> detectKeyPoint;
+std::vector<cv::KeyPoint> detectKeyPoint_binary;
 
 
 void CvImageXY::Test()
 {
-	/*CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
-	pEdit->AddString("test");*/
-	cv::Mat image_fliped;
-	cv::Mat image(cvSize(1280, 1024), CV_8UC3, cv::Scalar(0));
-	memcpy(image.data, m_RGBData, 1280 * 1024 * 3);
-	cv::flip(image, image_fliped, 0);
-	imshow("src image", image_fliped);
+	cv::Mat img_binary;
+	img = cvLoadImage("test.jpg", 1);
+	gray = cvCreateImage(cvGetSize(img), 8, 1);
+	cvCvtColor(img, gray, CV_BGR2GRAY);
 	
-
+	cv::Mat image = cv::cvarrToMat(gray);
+	cv::threshold(image, img_binary, 50, 255, CV_THRESH_TOZERO);
+	cvSmooth(gray, gray, CV_GAUSSIAN, 3, 3);
+	cvNamedWindow("circles", 1);
+	cvShowImage("circles", gray);
+	imshow("binary", img_binary);
 }
 
 void CvImageXY::ShowImage()
@@ -115,8 +118,8 @@ void CvImageXY::BlobDetector()
 void CvImageXY::BlobDetector_static()
 {
 	cv::Mat imgg = cv::imread("test.jpg", 1);
-	cv::Mat srcGrayImage;
-
+	cv::Mat srcGrayImage, img_binary, img_smooth;
+	
 	if (imgg.channels() == 3)
 	{
 		cvtColor(imgg, srcGrayImage, CV_RGB2GRAY);
@@ -125,7 +128,7 @@ void CvImageXY::BlobDetector_static()
 	{
 		imgg.copyTo(srcGrayImage);
 	}
-
+	
 	cv::Mat keyPointImage1, keyPointImage2;
 
 	cv::SimpleBlobDetector::Params params;
@@ -142,14 +145,29 @@ void CvImageXY::BlobDetector_static()
 	//sbd->create("SimpleBlob");
 	sbd->detect(srcGrayImage, detectKeyPoint);
 	
-	//test = detectKeyPoint[1].pt.y;
 	//test = params.maxThreshold;
 	//drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage1, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 	drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage2, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DEFAULT);
+	
+	//cvSmooth(&(IplImage)srcGrayImage, &(IplImage)img_smooth, CV_GAUSSIAN, 3, 3);
+	
+	cv::threshold(srcGrayImage, img_binary, 50, 255, CV_THRESH_TOZERO);//二值化确实有影响，等待验证
+	cv::SimpleBlobDetector::Params params_binary;
+	params_binary.filterByInertia = true;
+	//params.filterByColor = true;
+	params_binary.blobColor = 255;
+	//params.filterByArea = true;
+	params_binary.minThreshold = 10;
+	params_binary.minArea = 0.5;
+	params_binary.thresholdStep = 1;
+	params_binary.minDistBetweenBlobs = 1;
+	cv::Ptr<cv::SimpleBlobDetector> sbd_binary = cv::SimpleBlobDetector::create(params_binary);
+	sbd_binary->detect(img_binary, detectKeyPoint_binary);
+	drawKeypoints(img_binary, detectKeyPoint_binary, keyPointImage1, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DEFAULT);
 
 	//imshow("src image", srcGrayImage);
-	//imshow("keyPoint image1", keyPointImage1);
+	imshow("keyPoint image_binary", keyPointImage1);
 	imshow("keyPoint image2", keyPointImage2);
-
+	
 
 }

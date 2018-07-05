@@ -20,3 +20,4 @@ public:
 };
 extern BYTE   *m_RGBData;
 extern std::vector<cv::KeyPoint> detectKeyPoint;
+extern std::vector<cv::KeyPoint> detectKeyPoint_binary;
