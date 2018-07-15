@@ -95,7 +95,7 @@ void CvImageXY::BlobDetector()
 	//params.filterByColor = true;
 	params.blobColor = 255;
 	params.filterByArea = true;
-	params.minThreshold = 50;
+	params.minThreshold = 50;//原来是50，200太大肯定不行
 	params.minArea = 1;
 	params.thresholdStep = 1;
 	params.minDistBetweenBlobs = 1;
@@ -112,8 +112,49 @@ void CvImageXY::BlobDetector()
 	//imshow("src image", srcGrayImage);
 	//imshow("keyPoint image1", keyPointImage1);
 	imshow("keyPoint image2", keyPointImage2);
+}
 
+void CvImageXY::BlobDetector_threshold()
+{
+	cv::Mat image_fliped;
+	cv::Mat image(cvSize(1280, 1024), CV_8UC3, cv::Scalar(0));
+	memcpy(image.data, m_RGBData, 1280 * 1024 * 3);
+	cv::flip(image, image_fliped, 0);
+	cv::Mat srcGrayImage, img_binary;
 
+	if (image_fliped.channels() == 3)
+	{
+		cvtColor(image_fliped, srcGrayImage, CV_RGB2GRAY);
+	}
+	else
+	{
+		image_fliped.copyTo(srcGrayImage);
+	}
+	cv::threshold(srcGrayImage, img_binary, 50, 255, CV_THRESH_TOZERO);//初始值阈值为50，改为100更差，改为200更差
+	cv::Mat keyPointImage1, keyPointImage2;
+
+	cv::SimpleBlobDetector::Params params;
+	params.filterByInertia = true;
+	//params.filterByColor = true;
+	params.blobColor = 255;
+	params.filterByArea = true;
+	params.minThreshold = 50;
+	params.minArea = 1;
+	params.thresholdStep = 1;
+	params.minDistBetweenBlobs = 1;
+
+	cv::Ptr<cv::SimpleBlobDetector> sbd = cv::SimpleBlobDetector::create(params);
+	//sbd->create("SimpleBlob");
+	sbd->detect(img_binary, detectKeyPoint);
+
+	//test = detectKeyPoint[1].pt.y;
+	//test = params.maxThreshold;
+	//drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage1, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+	drawKeypoints(img_binary, detectKeyPoint, keyPointImage2, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DEFAULT);
+
+	//imshow("src image", srcGrayImage);
+	//imshow("keyPoint image1", keyPointImage1);
+	imshow("keyPoint image2", keyPointImage2);
 }
 void CvImageXY::BlobDetector_static()
 {
@@ -128,7 +169,8 @@ void CvImageXY::BlobDetector_static()
 	{
 		imgg.copyTo(srcGrayImage);
 	}
-	
+
+	cv::threshold(srcGrayImage, img_binary, 50, 255, CV_THRESH_TOZERO);
 	cv::Mat keyPointImage1, keyPointImage2;
 
 	cv::SimpleBlobDetector::Params params;

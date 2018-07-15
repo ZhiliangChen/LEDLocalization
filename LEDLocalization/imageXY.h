@@ -7,6 +7,7 @@ public:
 	void ShowImage();
 	
 	void BlobDetector();
+	void BlobDetector_threshold();
 	void BlobDetector_static();
 	void Test();
 	IplImage* img;
