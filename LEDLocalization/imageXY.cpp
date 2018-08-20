@@ -96,7 +96,7 @@ void CvImageXY::BlobDetector()
 	params.blobColor = 255;
 	params.filterByArea = true;
 	params.minThreshold = 50;//原来是50，200太大肯定不行
-	params.minArea = 1;
+	params.minArea = 5;
 	params.thresholdStep = 1;
 	params.minDistBetweenBlobs = 1;
 

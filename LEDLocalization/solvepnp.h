@@ -3,6 +3,8 @@ class CvSlovePNP
 {
 
 public:
+	void SloveIterative();
+	void SloveP3P();
 	void SloveEPNP7();
 	void SloveEPNP8();
 	void SloveEPNP9();
