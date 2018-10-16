@@ -87,8 +87,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\!research\SDK\x64\include;D:\!research\opencv\build\include;D:\!research\opencv\build\include\opencv;D:\!research\opencv\build\include\opencv2;C:\SDK\MVC1000MF\x64\include;C:\SDK\opencv\build\include;C:\SDK\opencv\build\include\opencv;C:\SDK\opencv\build\include\opencv2;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\!research\opencv\build\x64\vc15\lib;D:\!research\SDK\x64\lib;C:\SDK\MVC1000MF\x64\lib;C:\SDK\opencv\build\x64\vc15\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\!research\GO SDK 3.0.3\library\CPP\include;D:\!research\SDK\x64\include;D:\!research\opencv\build\include;D:\!research\opencv\build\include\opencv;D:\!research\opencv\build\include\opencv2;C:\SDK\MVC1000MF\x64\include;C:\SDK\opencv\build\include;C:\SDK\opencv\build\include\opencv;C:\SDK\opencv\build\include\opencv2;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\!research\GO SDK 3.0.3\library\CPP\lib\Win64_x64;D:\!research\opencv\build\x64\vc15\lib;D:\!research\SDK\x64\lib;C:\SDK\MVC1000MF\x64\lib;C:\SDK\opencv\build\x64\vc15\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -175,7 +175,7 @@
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>MVCAPI.lib;opencv_world341.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Jai_Factory.lib;MVCAPI.lib;opencv_world341.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>

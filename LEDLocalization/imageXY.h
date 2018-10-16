@@ -4,6 +4,8 @@ class CvImageXY
 {
 
 public:
+
+	void BlobDetector_NEW();
 	void ShowImage();
 	
 	void BlobDetector();

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <cv.h>
 #include <highgui.h>
 #include "imageXY.h"
 #include "opencv2/features2d/features2d.hpp"  //SimpleBlobDetector头文件
@@ -14,18 +13,56 @@ std::vector<cv::KeyPoint> detectKeyPoint_binary;
 
 void CvImageXY::Test()
 {
-	cv::Mat img_binary;
-	img = cvLoadImage("test.jpg", 1);
-	gray = cvCreateImage(cvGetSize(img), 8, 1);
-	cvCvtColor(img, gray, CV_BGR2GRAY);
 	
-	cv::Mat image = cv::cvarrToMat(gray);
-	cv::threshold(image, img_binary, 50, 255, CV_THRESH_TOZERO);
-	cvSmooth(gray, gray, CV_GAUSSIAN, 3, 3);
 	cvNamedWindow("circles", 1);
-	cvShowImage("circles", gray);
-	imshow("binary", img_binary);
+	cvShowImage("circles", m_pImg);
 }
+
+void CvImageXY::BlobDetector_NEW()
+{
+	/*cv::Mat image_fliped;
+	cv::Mat image(cvSize(1280, 1024), CV_8UC3, cv::Scalar(0));
+	memcpy(image.data, m_RGBData, 1280 * 1024 * 3);
+	cv::flip(image, image_fliped, 0);
+	cv::Mat srcGrayImage;
+
+	if (image_fliped.channels() == 3)
+	{
+		cvtColor(image_fliped, srcGrayImage, CV_RGB2GRAY);
+	}
+	else
+	{
+		image_fliped.copyTo(srcGrayImage);
+	}*/
+	cv::Mat srcGrayImage = cv::cvarrToMat(m_pImg);
+	cv::Mat keyPointImage1, keyPointImage2;
+
+	cv::SimpleBlobDetector::Params params;
+	params.filterByInertia = true;
+	//params.filterByColor = true;
+	params.blobColor = 255;
+	params.filterByArea = true;
+	params.minThreshold = 50;//原来是50，200太大肯定不行
+	params.minArea = 5;
+	params.thresholdStep = 1;
+	params.minDistBetweenBlobs = 1;
+
+	cv::Ptr<cv::SimpleBlobDetector> sbd = cv::SimpleBlobDetector::create(params);
+	//sbd->create("SimpleBlob");
+	sbd->detect(srcGrayImage, detectKeyPoint);
+
+	//test = detectKeyPoint[1].pt.y;
+	//test = params.maxThreshold;
+	//drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage1, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+	drawKeypoints(srcGrayImage, detectKeyPoint, keyPointImage2, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DEFAULT);
+
+	//imshow("src image", srcGrayImage);
+	//imshow("keyPoint image1", keyPointImage1);
+	imshow("keyPoint image2", keyPointImage2);
+
+}
+
+
 
 void CvImageXY::ShowImage()
 {
