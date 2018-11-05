@@ -207,6 +207,7 @@
     <ClCompile Include="imageXY.cpp" />
     <ClCompile Include="LEDLocalization.cpp" />
     <ClCompile Include="LEDLocalizationDlg.cpp" />
+    <ClCompile Include="rostest.cpp" />
     <ClCompile Include="solvepnp.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

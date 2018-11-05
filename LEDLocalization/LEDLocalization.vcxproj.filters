@@ -71,6 +71,9 @@
     <ClCompile Include="..\ros_lib\WindowsSocket.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="rostest.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LEDLocalization.rc">
