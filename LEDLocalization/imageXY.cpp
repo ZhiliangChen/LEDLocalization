@@ -39,13 +39,13 @@ void CvImageXY::BlobDetector_NEW()
 
 	cv::SimpleBlobDetector::Params params;
 	params.filterByInertia = true;
-	//params.filterByColor = true;
+	params.filterByColor = true;
 	params.blobColor = 255;
 	params.filterByArea = true;
 	params.minThreshold = 50;//原来是50，200太大肯定不行
-	params.minArea = 5;
+	params.minArea = 10;
 	params.thresholdStep = 1;
-	params.minDistBetweenBlobs = 1;
+	params.minDistBetweenBlobs = 10;
 
 	cv::Ptr<cv::SimpleBlobDetector> sbd = cv::SimpleBlobDetector::create(params);
 	//sbd->create("SimpleBlob");
@@ -58,7 +58,8 @@ void CvImageXY::BlobDetector_NEW()
 
 	//imshow("src image", srcGrayImage);
 	//imshow("keyPoint image1", keyPointImage1);
-	imshow("keyPoint image2", keyPointImage2);
+	cvNamedWindow("keyPoint image", 0);
+	imshow("keyPoint image", keyPointImage2);
 
 }
 

@@ -32,7 +32,14 @@ double Cx_asymmetric6_3, Cy_asymmetric6_3, Cz_asymmetric6_3,
 double Cx_iter, Cy_iter, Cz_iter,
 	   Cx_P3P, Cy_P3P, Cz_P3P;
 
-double Cx_new15, Cy_new15, Cz_new15;
+double Cx_new15, Cy_new15, Cz_new15,
+		Cx_LINE9, Cy_LINE9, Cz_LINE9,
+		Cx_LINE7, Cy_LINE7, Cz_LINE7,
+		Cx_L14, Cy_L14, Cz_L14,
+		Cx_Z13, Cy_Z13, Cz_Z13,
+		Cx_ANGLE7, Cy_ANGLE7, Cz_ANGLE7, Cx_ANGLE15, Cy_ANGLE15, Cz_ANGLE15,
+		Cx_ANGLE9, Cy_ANGLE9, Cz_ANGLE9;
+double thetax_new15, thetay_new15, thetaz_new15;
 
 //将空间点绕Z轴旋转
 //输入参数 x y为空间点原始x y坐标
@@ -111,7 +118,501 @@ void CvSlovePNP::Test()
 	}
 
 }
+void CvSlovePNP::SloveEPNP_ANGLE7()
+{
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
 
+	std::vector<cv::Point2f> Points2D;
+	std::vector<cv::Point2f> temp;
+
+
+	for (int i = 0; i<25; i++)
+	{
+		Points2D.push_back(detectKeyPoint[i].pt);
+	}
+	std::sort(Points2D.begin(), Points2D.end(), compare_y);//按y坐标值大小升序排列
+	std::sort(Points2D.begin(), Points2D.begin() + 5, compare_x);//y坐标值最小的5个点，按照x坐标值升序排列
+	std::sort(Points2D.begin() + 6, Points2D.begin() + 11, compare_x);
+	std::sort(Points2D.begin() + 12, Points2D.begin() + 17, compare_x);
+	std::sort(Points2D.begin() + 18, Points2D.begin() + 23, compare_x);
+	
+
+	//特征点世界坐标
+	std::vector<cv::Point3f> Points3D;
+	Points3D.push_back(cv::Point3f(0, 0, 101.8642));//P1 三维坐标的单位是毫米
+	Points3D.push_back(cv::Point3f(-79.9799, -2.7329, 100.5745));		//P2
+	Points3D.push_back(cv::Point3f(-159.9838, -4.947, 98.9121));		//P3
+	Points3D.push_back(cv::Point3f(-239.8114, -7.152, 98.02));			//P4
+	Points3D.push_back(cv::Point3f(-319.6314, -9.5875, 96.7155));		//P5
+	Points3D.push_back(cv::Point3f(-158.652, 43.833, -0.29));			//P6
+	Points3D.push_back(cv::Point3f(1.7559, 95.6418, 98.0094));			//P7
+	Points3D.push_back(cv::Point3f(-78.2473, 95.0462, 98.4001));		//P8
+	Points3D.push_back(cv::Point3f(-158.3842, 94.9418, 98.4764));		//P9
+	Points3D.push_back(cv::Point3f(-238.1499, 93.75, 99.5081));			//P10
+	Points3D.push_back(cv::Point3f(-317.9415, 93.6005, 100.1003));		//P11
+	Points3D.push_back(cv::Point3f(-158.8815, 143.7132, -0.2839));		//P12
+	Points3D.push_back(cv::Point3f(2.8632, 195.8575, 97.2249));			//P13
+	Points3D.push_back(cv::Point3f(-76.9879, 194.703, 98.1159));		//P14
+	Points3D.push_back(cv::Point3f(-157.2452, 194.4011, 98.2977));		//P15
+	Points3D.push_back(cv::Point3f(-237.1045, 193.1765, 99.8652));		//P16
+	Points3D.push_back(cv::Point3f(-316.9851, 192.9369, 100.8416));		//P17
+	Points3D.push_back(cv::Point3f(-158.335, 244.0331, -0.3264));		//P18
+	Points3D.push_back(cv::Point3f(1.2543, 296.5173, 98.4156));			//P19
+	Points3D.push_back(cv::Point3f(-78.9254, 295.4227, 98.3087));		//P20
+	Points3D.push_back(cv::Point3f(-158.9172, 294.2362, 97.96));		//P21
+	Points3D.push_back(cv::Point3f(-238.6392, 292.6553, 98.5948));		//P22
+	Points3D.push_back(cv::Point3f(-318.6672, 291.5628, 98.9174));		//P23
+	Points3D.push_back(cv::Point3f(-158.6595, 343.6634, -0.3606));		//P24
+	Points3D.push_back(cv::Point3f(-158.4649, 393.7914, -0.3087));		//P25
+
+																	
+	//取中间7个点
+	Points2D.erase(Points2D.begin(), Points2D.begin() + 2);
+	Points2D.erase(Points2D.begin() + 1, Points2D.begin() + 3);
+	Points2D.erase(Points2D.begin() + 2, Points2D.begin() + 4);
+	Points2D.erase(Points2D.begin() + 3, Points2D.begin() + 5);
+	Points2D.erase(Points2D.begin() + 4, Points2D.begin() + 6);
+	Points2D.erase(Points2D.begin() + 5, Points2D.begin() + 7);
+	Points2D.erase(Points2D.begin() + 6, Points2D.begin() + 8);
+	Points2D.erase(Points2D.begin() + 7, Points2D.end());
+	
+
+	Points3D.erase(Points3D.begin(), Points3D.begin() + 2);
+	Points3D.erase(Points3D.begin() + 1, Points3D.begin() + 3);
+	Points3D.erase(Points3D.begin() + 2, Points3D.begin() + 4);
+	Points3D.erase(Points3D.begin() + 3, Points3D.begin() + 5);
+	Points3D.erase(Points3D.begin() + 4, Points3D.begin() + 6);
+	Points3D.erase(Points3D.begin() + 5, Points3D.begin() + 7);
+	Points3D.erase(Points3D.begin() + 6, Points3D.begin() + 8);
+	Points3D.erase(Points3D.begin() + 7, Points3D.end());
+
+	/*m_str.Format("2D数组个数: %d，3D数组个数: %d", Points2D.size(), Points3D.size());
+	pEdit->AddString(m_str);*/
+
+	//初始化输出矩阵
+	cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
+	cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+
+	//三种方法求解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);	//实测迭代法似乎只能用4个共面特征点求解，5个点或非共面4点解不出正确的解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_P3P);			//Gao的方法可以使用任意四个特征点，特征点数量不能少于4也不能多于4
+	solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_EPNP);			//该方法可以用于N点位姿估计
+
+																								//旋转向量变旋转矩阵
+																								//提取旋转矩阵
+	double rm[9];
+	cv::Mat rotM(3, 3, CV_64FC1, rm);
+	Rodrigues(rvec, rotM);
+	double r11 = rotM.ptr<double>(0)[0];
+	double r12 = rotM.ptr<double>(0)[1];
+	double r13 = rotM.ptr<double>(0)[2];
+	double r21 = rotM.ptr<double>(1)[0];
+	double r22 = rotM.ptr<double>(1)[1];
+	double r23 = rotM.ptr<double>(1)[2];
+	double r31 = rotM.ptr<double>(2)[0];
+	double r32 = rotM.ptr<double>(2)[1];
+	double r33 = rotM.ptr<double>(2)[2];
+
+	/*************************************此处计算出相机的旋转角**********************************************/
+	//计算出相机坐标系的三轴旋转欧拉角，旋转后可以转出世界坐标系。
+	//旋转顺序为z、y、x
+	//原理见帖子：
+	double thetaz = atan2(r21, r11) / CV_PI * 180;
+	double thetay = atan2(-1 * r31, sqrt(r32*r32 + r33 * r33)) / CV_PI * 180;
+	double thetax = atan2(r32, r33) / CV_PI * 180;
+	double thetaz_out = -thetaz;
+	double thetay_out = -thetay;
+	double thetax_out = -thetax;
+
+	//ofstream fout("D:\\pnp_theta.txt");
+	//fout << -1 * thetax << endl << -1 * thetay << endl << -1 * thetaz << endl;
+	////cout << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
+	//fout.close();
+
+	m_str.Format("相机的三轴旋转角 x: %f, y: %f, z: %f", thetax_out, thetay_out, thetaz_out);
+	pEdit->AddString(m_str);
+	/*************************************此处计算出相机的旋转角END**********************************************/
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置**********************************************/
+	/* 当原始坐标系经过旋转z、y、x三次旋转后，会与世界坐标系完全平行，而三次旋转中向量OcOw会跟着旋转 */
+	/* 而我们想知道的是两个坐标系完全平行时，OcOw的值 */
+	/* 因此，原始坐标系每次旋转完成后，对向量OcOw进行一次反相旋转，最终可以得到两个坐标系完全平行时的OcOw */
+	/* 该向量乘以-1就是世界坐标系下相机的坐标 */
+	/***********************************************************************************/
+
+	//提出平移矩阵，表示从相机坐标系原点，跟着向量(x,y,z)走，就到了世界坐标系原点
+	double tx = tvec.ptr<double>(0)[0];
+	double ty = tvec.ptr<double>(0)[1];
+	double tz = tvec.ptr<double>(0)[2];
+
+	//x y z 为唯一向量在相机原始坐标系下的向量值
+	//也就是向量OcOw在相机坐标系下的值
+	double x = tx, y = ty, z = tz;
+
+	//进行三次反向旋转
+	codeRotateByZ(x, y, -1 * thetaz, x, y);
+	codeRotateByY(x, z, -1 * thetay, x, z);
+	codeRotateByX(y, z, -1 * thetax, y, z);
+
+	//获得相机在世界坐标系下的位置坐标
+	//即向量OcOw在世界坐标系下的值
+	double Cx = x * -1;
+	double Cy = y * -1;
+	double Cz = z * -1;
+	displacement = sqrt(pow((Cx_ANGLE7 - Cx), 2) + pow((Cy_ANGLE7 - Cy), 2) + pow((Cz_ANGLE7 - Cz), 2));
+	//ofstream fout2("D:\\pnp_t.txt");
+	//fout2 << Cx << std::endl << Cy << endl << Cz << endl;
+	////cout << "相机的世界坐标：" << Cx << ", " << Cy << ", " << Cz << endl;
+	//fout2.close();
+
+	m_str.Format("相机的世界坐标 x: %lf, y: %lf, z: %lf", Cx, Cy, Cz);
+	pEdit->AddString(m_str);
+
+	m_str.Format("求解Δd:  %lf", displacement);
+	pEdit->AddString(m_str);
+
+	pEdit->SetCurSel(pEdit->GetCount() - 1);
+	Cx_ANGLE7 = Cx;
+	Cy_ANGLE7 = Cy;
+	Cz_ANGLE7 = Cz;
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置END**********************************************/
+
+	//重投影测试位姿解是否正确
+	std::vector<cv::Point2f> projectedPoints;
+	Points3D.push_back(cv::Point3f(0, 100, 105));
+	cv::projectPoints(Points3D, rvec, tvec, cameraMatrix, distCoeffs, projectedPoints);
+}
+void CvSlovePNP::SloveEPNP_ANGLE9()
+{
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
+
+	std::vector<cv::Point2f> Points2D;
+	std::vector<cv::Point2f> temp;
+
+
+	for (int i = 0; i<25; i++)
+	{
+		Points2D.push_back(detectKeyPoint[i].pt);
+	}
+	std::sort(Points2D.begin(), Points2D.end(), compare_y);//按y坐标值大小升序排列
+	std::sort(Points2D.begin(), Points2D.begin() + 5, compare_x);//y坐标值最小的5个点，按照x坐标值升序排列
+	std::sort(Points2D.begin() + 6, Points2D.begin() + 11, compare_x);
+	std::sort(Points2D.begin() + 12, Points2D.begin() + 17, compare_x);
+	std::sort(Points2D.begin() + 18, Points2D.begin() + 23, compare_x);
+
+
+	//特征点世界坐标
+	std::vector<cv::Point3f> Points3D;
+	Points3D.push_back(cv::Point3f(0, 0, 101.8642));//P1 三维坐标的单位是毫米
+	Points3D.push_back(cv::Point3f(-79.9799, -2.7329, 100.5745));		//P2
+	Points3D.push_back(cv::Point3f(-159.9838, -4.947, 98.9121));		//P3
+	Points3D.push_back(cv::Point3f(-239.8114, -7.152, 98.02));			//P4
+	Points3D.push_back(cv::Point3f(-319.6314, -9.5875, 96.7155));		//P5
+	Points3D.push_back(cv::Point3f(-158.652, 43.833, -0.29));			//P6
+	Points3D.push_back(cv::Point3f(1.7559, 95.6418, 98.0094));			//P7
+	Points3D.push_back(cv::Point3f(-78.2473, 95.0462, 98.4001));		//P8
+	Points3D.push_back(cv::Point3f(-158.3842, 94.9418, 98.4764));		//P9
+	Points3D.push_back(cv::Point3f(-238.1499, 93.75, 99.5081));			//P10
+	Points3D.push_back(cv::Point3f(-317.9415, 93.6005, 100.1003));		//P11
+	Points3D.push_back(cv::Point3f(-158.8815, 143.7132, -0.2839));		//P12
+	Points3D.push_back(cv::Point3f(2.8632, 195.8575, 97.2249));			//P13
+	Points3D.push_back(cv::Point3f(-76.9879, 194.703, 98.1159));		//P14
+	Points3D.push_back(cv::Point3f(-157.2452, 194.4011, 98.2977));		//P15
+	Points3D.push_back(cv::Point3f(-237.1045, 193.1765, 99.8652));		//P16
+	Points3D.push_back(cv::Point3f(-316.9851, 192.9369, 100.8416));		//P17
+	Points3D.push_back(cv::Point3f(-158.335, 244.0331, -0.3264));		//P18
+	Points3D.push_back(cv::Point3f(1.2543, 296.5173, 98.4156));			//P19
+	Points3D.push_back(cv::Point3f(-78.9254, 295.4227, 98.3087));		//P20
+	Points3D.push_back(cv::Point3f(-158.9172, 294.2362, 97.96));		//P21
+	Points3D.push_back(cv::Point3f(-238.6392, 292.6553, 98.5948));		//P22
+	Points3D.push_back(cv::Point3f(-318.6672, 291.5628, 98.9174));		//P23
+	Points3D.push_back(cv::Point3f(-158.6595, 343.6634, -0.3606));		//P24
+	Points3D.push_back(cv::Point3f(-158.4649, 393.7914, -0.3087));		//P25
+
+
+																		//取中间7个点
+	Points2D.erase(Points2D.begin(), Points2D.begin() + 2);
+	Points2D.erase(Points2D.begin() + 1, Points2D.begin() + 3);
+	Points2D.erase(Points2D.begin() + 2, Points2D.begin() + 4);
+	Points2D.erase(Points2D.begin() + 3, Points2D.begin() + 5);
+	Points2D.erase(Points2D.begin() + 4, Points2D.begin() + 6);
+	Points2D.erase(Points2D.begin() + 5, Points2D.begin() + 7);
+	Points2D.erase(Points2D.begin() + 6, Points2D.begin() + 8);
+	Points2D.erase(Points2D.begin() + 7, Points2D.begin() + 9);
+
+
+	Points3D.erase(Points3D.begin(), Points3D.begin() + 2);
+	Points3D.erase(Points3D.begin() + 1, Points3D.begin() + 3);
+	Points3D.erase(Points3D.begin() + 2, Points3D.begin() + 4);
+	Points3D.erase(Points3D.begin() + 3, Points3D.begin() + 5);
+	Points3D.erase(Points3D.begin() + 4, Points3D.begin() + 6);
+	Points3D.erase(Points3D.begin() + 5, Points3D.begin() + 7);
+	Points3D.erase(Points3D.begin() + 6, Points3D.begin() + 8);
+	Points3D.erase(Points3D.begin() + 7, Points3D.begin() + 9);
+
+	/*m_str.Format("2D数组个数: %d，3D数组个数: %d", Points2D.size(), Points3D.size());
+	pEdit->AddString(m_str);*/
+
+	//初始化输出矩阵
+	cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
+	cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+
+	//三种方法求解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);	//实测迭代法似乎只能用4个共面特征点求解，5个点或非共面4点解不出正确的解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_P3P);			//Gao的方法可以使用任意四个特征点，特征点数量不能少于4也不能多于4
+	solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_EPNP);			//该方法可以用于N点位姿估计
+
+																								//旋转向量变旋转矩阵
+																								//提取旋转矩阵
+	double rm[9];
+	cv::Mat rotM(3, 3, CV_64FC1, rm);
+	Rodrigues(rvec, rotM);
+	double r11 = rotM.ptr<double>(0)[0];
+	double r12 = rotM.ptr<double>(0)[1];
+	double r13 = rotM.ptr<double>(0)[2];
+	double r21 = rotM.ptr<double>(1)[0];
+	double r22 = rotM.ptr<double>(1)[1];
+	double r23 = rotM.ptr<double>(1)[2];
+	double r31 = rotM.ptr<double>(2)[0];
+	double r32 = rotM.ptr<double>(2)[1];
+	double r33 = rotM.ptr<double>(2)[2];
+
+	/*************************************此处计算出相机的旋转角**********************************************/
+	//计算出相机坐标系的三轴旋转欧拉角，旋转后可以转出世界坐标系。
+	//旋转顺序为z、y、x
+	//原理见帖子：
+	double thetaz = atan2(r21, r11) / CV_PI * 180;
+	double thetay = atan2(-1 * r31, sqrt(r32*r32 + r33 * r33)) / CV_PI * 180;
+	double thetax = atan2(r32, r33) / CV_PI * 180;
+	double thetaz_out = -thetaz;
+	double thetay_out = -thetay;
+	double thetax_out = -thetax;
+
+	//ofstream fout("D:\\pnp_theta.txt");
+	//fout << -1 * thetax << endl << -1 * thetay << endl << -1 * thetaz << endl;
+	////cout << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
+	//fout.close();
+
+	m_str.Format("相机的三轴旋转角 x: %f, y: %f, z: %f", thetax_out, thetay_out, thetaz_out);
+	pEdit->AddString(m_str);
+	/*************************************此处计算出相机的旋转角END**********************************************/
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置**********************************************/
+	/* 当原始坐标系经过旋转z、y、x三次旋转后，会与世界坐标系完全平行，而三次旋转中向量OcOw会跟着旋转 */
+	/* 而我们想知道的是两个坐标系完全平行时，OcOw的值 */
+	/* 因此，原始坐标系每次旋转完成后，对向量OcOw进行一次反相旋转，最终可以得到两个坐标系完全平行时的OcOw */
+	/* 该向量乘以-1就是世界坐标系下相机的坐标 */
+	/***********************************************************************************/
+
+	//提出平移矩阵，表示从相机坐标系原点，跟着向量(x,y,z)走，就到了世界坐标系原点
+	double tx = tvec.ptr<double>(0)[0];
+	double ty = tvec.ptr<double>(0)[1];
+	double tz = tvec.ptr<double>(0)[2];
+
+	//x y z 为唯一向量在相机原始坐标系下的向量值
+	//也就是向量OcOw在相机坐标系下的值
+	double x = tx, y = ty, z = tz;
+
+	//进行三次反向旋转
+	codeRotateByZ(x, y, -1 * thetaz, x, y);
+	codeRotateByY(x, z, -1 * thetay, x, z);
+	codeRotateByX(y, z, -1 * thetax, y, z);
+
+	//获得相机在世界坐标系下的位置坐标
+	//即向量OcOw在世界坐标系下的值
+	double Cx = x * -1;
+	double Cy = y * -1;
+	double Cz = z * -1;
+	displacement = sqrt(pow((Cx_ANGLE9 - Cx), 2) + pow((Cy_ANGLE9 - Cy), 2) + pow((Cz_ANGLE9 - Cz), 2));
+	//ofstream fout2("D:\\pnp_t.txt");
+	//fout2 << Cx << std::endl << Cy << endl << Cz << endl;
+	////cout << "相机的世界坐标：" << Cx << ", " << Cy << ", " << Cz << endl;
+	//fout2.close();
+
+	m_str.Format("相机的世界坐标 x: %lf, y: %lf, z: %lf", Cx, Cy, Cz);
+	pEdit->AddString(m_str);
+
+	m_str.Format("求解Δd:  %lf", displacement);
+	pEdit->AddString(m_str);
+
+	pEdit->SetCurSel(pEdit->GetCount() - 1);
+	Cx_ANGLE9 = Cx;
+	Cy_ANGLE9 = Cy;
+	Cz_ANGLE9 = Cz;
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置END**********************************************/
+
+	//重投影测试位姿解是否正确
+	std::vector<cv::Point2f> projectedPoints;
+	Points3D.push_back(cv::Point3f(0, 100, 105));
+	cv::projectPoints(Points3D, rvec, tvec, cameraMatrix, distCoeffs, projectedPoints);
+}
+void CvSlovePNP::SloveEPNP_ANGLE15()
+{
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
+
+	std::vector<cv::Point2f> Points2D;
+	std::vector<cv::Point2f> temp;
+
+
+	for (int i = 0; i<25; i++)
+	{
+		Points2D.push_back(detectKeyPoint[i].pt);
+	}
+	std::sort(Points2D.begin(), Points2D.end(), compare_y);//按y坐标值大小升序排列
+	std::sort(Points2D.begin(), Points2D.begin() + 5, compare_x);//y坐标值最小的5个点，按照x坐标值升序排列
+	std::sort(Points2D.begin() + 6, Points2D.begin() + 11, compare_x);
+	std::sort(Points2D.begin() + 12, Points2D.begin() + 17, compare_x);
+	std::sort(Points2D.begin() + 18, Points2D.begin() + 23, compare_x);
+
+
+	//特征点世界坐标
+	std::vector<cv::Point3f> Points3D;
+	Points3D.push_back(cv::Point3f(0, 0, 101.8642));//P1 三维坐标的单位是毫米
+	Points3D.push_back(cv::Point3f(-79.9799, -2.7329, 100.5745));		//P2
+	Points3D.push_back(cv::Point3f(-159.9838, -4.947, 98.9121));		//P3
+	Points3D.push_back(cv::Point3f(-239.8114, -7.152, 98.02));			//P4
+	Points3D.push_back(cv::Point3f(-319.6314, -9.5875, 96.7155));		//P5
+	Points3D.push_back(cv::Point3f(-158.652, 43.833, -0.29));			//P6
+	Points3D.push_back(cv::Point3f(1.7559, 95.6418, 98.0094));			//P7
+	Points3D.push_back(cv::Point3f(-78.2473, 95.0462, 98.4001));		//P8
+	Points3D.push_back(cv::Point3f(-158.3842, 94.9418, 98.4764));		//P9
+	Points3D.push_back(cv::Point3f(-238.1499, 93.75, 99.5081));			//P10
+	Points3D.push_back(cv::Point3f(-317.9415, 93.6005, 100.1003));		//P11
+	Points3D.push_back(cv::Point3f(-158.8815, 143.7132, -0.2839));		//P12
+	Points3D.push_back(cv::Point3f(2.8632, 195.8575, 97.2249));			//P13
+	Points3D.push_back(cv::Point3f(-76.9879, 194.703, 98.1159));		//P14
+	Points3D.push_back(cv::Point3f(-157.2452, 194.4011, 98.2977));		//P15
+	Points3D.push_back(cv::Point3f(-237.1045, 193.1765, 99.8652));		//P16
+	Points3D.push_back(cv::Point3f(-316.9851, 192.9369, 100.8416));		//P17
+	Points3D.push_back(cv::Point3f(-158.335, 244.0331, -0.3264));		//P18
+	Points3D.push_back(cv::Point3f(1.2543, 296.5173, 98.4156));			//P19
+	Points3D.push_back(cv::Point3f(-78.9254, 295.4227, 98.3087));		//P20
+	Points3D.push_back(cv::Point3f(-158.9172, 294.2362, 97.96));		//P21
+	Points3D.push_back(cv::Point3f(-238.6392, 292.6553, 98.5948));		//P22
+	Points3D.push_back(cv::Point3f(-318.6672, 291.5628, 98.9174));		//P23
+	Points3D.push_back(cv::Point3f(-158.6595, 343.6634, -0.3606));		//P24
+	Points3D.push_back(cv::Point3f(-158.4649, 393.7914, -0.3087));		//P25
+
+
+																		//取中间7个点
+	Points2D.erase(Points2D.begin(), Points2D.begin() + 1);
+	Points2D.erase(Points2D.begin() + 3, Points2D.begin() + 4);
+	Points2D.erase(Points2D.begin() + 4, Points2D.begin() + 5);
+	Points2D.erase(Points2D.begin() + 7, Points2D.begin() + 8);
+	Points2D.erase(Points2D.begin() + 8, Points2D.begin() + 9);
+	Points2D.erase(Points2D.begin() + 11, Points2D.begin() + 12);
+	Points2D.erase(Points2D.begin() + 12, Points2D.begin() + 13);
+	Points2D.erase(Points2D.begin() + 15, Points2D.end());
+
+
+	Points3D.erase(Points3D.begin(), Points3D.begin() + 1);
+	Points3D.erase(Points3D.begin() + 3, Points3D.begin() + 4);
+	Points3D.erase(Points3D.begin() + 4, Points3D.begin() + 5);
+	Points3D.erase(Points3D.begin() + 7, Points3D.begin() + 8);
+	Points3D.erase(Points3D.begin() + 8, Points3D.begin() + 9);
+	Points3D.erase(Points3D.begin() + 11, Points3D.begin() + 12);
+	Points3D.erase(Points3D.begin() + 12, Points3D.begin() + 13);
+	Points3D.erase(Points3D.begin() + 15, Points3D.end());
+
+	/*m_str.Format("2D数组个数: %d，3D数组个数: %d", Points2D.size(), Points3D.size());
+	pEdit->AddString(m_str);*/
+
+	//初始化输出矩阵
+	cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
+	cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+
+	//三种方法求解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);	//实测迭代法似乎只能用4个共面特征点求解，5个点或非共面4点解不出正确的解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_P3P);			//Gao的方法可以使用任意四个特征点，特征点数量不能少于4也不能多于4
+	solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_EPNP);			//该方法可以用于N点位姿估计
+
+																								//旋转向量变旋转矩阵
+																								//提取旋转矩阵
+	double rm[9];
+	cv::Mat rotM(3, 3, CV_64FC1, rm);
+	Rodrigues(rvec, rotM);
+	double r11 = rotM.ptr<double>(0)[0];
+	double r12 = rotM.ptr<double>(0)[1];
+	double r13 = rotM.ptr<double>(0)[2];
+	double r21 = rotM.ptr<double>(1)[0];
+	double r22 = rotM.ptr<double>(1)[1];
+	double r23 = rotM.ptr<double>(1)[2];
+	double r31 = rotM.ptr<double>(2)[0];
+	double r32 = rotM.ptr<double>(2)[1];
+	double r33 = rotM.ptr<double>(2)[2];
+
+	/*************************************此处计算出相机的旋转角**********************************************/
+	//计算出相机坐标系的三轴旋转欧拉角，旋转后可以转出世界坐标系。
+	//旋转顺序为z、y、x
+	//原理见帖子：
+	double thetaz = atan2(r21, r11) / CV_PI * 180;
+	double thetay = atan2(-1 * r31, sqrt(r32*r32 + r33 * r33)) / CV_PI * 180;
+	double thetax = atan2(r32, r33) / CV_PI * 180;
+	double thetaz_out = -thetaz;
+	double thetay_out = -thetay;
+	double thetax_out = -thetax;
+
+	//ofstream fout("D:\\pnp_theta.txt");
+	//fout << -1 * thetax << endl << -1 * thetay << endl << -1 * thetaz << endl;
+	////cout << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
+	//fout.close();
+
+	m_str.Format("相机的三轴旋转角 x: %f, y: %f, z: %f", thetax_out, thetay_out, thetaz_out);
+	pEdit->AddString(m_str);
+	/*************************************此处计算出相机的旋转角END**********************************************/
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置**********************************************/
+	/* 当原始坐标系经过旋转z、y、x三次旋转后，会与世界坐标系完全平行，而三次旋转中向量OcOw会跟着旋转 */
+	/* 而我们想知道的是两个坐标系完全平行时，OcOw的值 */
+	/* 因此，原始坐标系每次旋转完成后，对向量OcOw进行一次反相旋转，最终可以得到两个坐标系完全平行时的OcOw */
+	/* 该向量乘以-1就是世界坐标系下相机的坐标 */
+	/***********************************************************************************/
+
+	//提出平移矩阵，表示从相机坐标系原点，跟着向量(x,y,z)走，就到了世界坐标系原点
+	double tx = tvec.ptr<double>(0)[0];
+	double ty = tvec.ptr<double>(0)[1];
+	double tz = tvec.ptr<double>(0)[2];
+
+	//x y z 为唯一向量在相机原始坐标系下的向量值
+	//也就是向量OcOw在相机坐标系下的值
+	double x = tx, y = ty, z = tz;
+
+	//进行三次反向旋转
+	codeRotateByZ(x, y, -1 * thetaz, x, y);
+	codeRotateByY(x, z, -1 * thetay, x, z);
+	codeRotateByX(y, z, -1 * thetax, y, z);
+
+	//获得相机在世界坐标系下的位置坐标
+	//即向量OcOw在世界坐标系下的值
+	double Cx = x * -1;
+	double Cy = y * -1;
+	double Cz = z * -1;
+	displacement = sqrt(pow((Cx_ANGLE15 - Cx), 2) + pow((Cy_ANGLE15 - Cy), 2) + pow((Cz_ANGLE15 - Cz), 2));
+	//ofstream fout2("D:\\pnp_t.txt");
+	//fout2 << Cx << std::endl << Cy << endl << Cz << endl;
+	////cout << "相机的世界坐标：" << Cx << ", " << Cy << ", " << Cz << endl;
+	//fout2.close();
+
+	m_str.Format("相机的世界坐标 x: %lf, y: %lf, z: %lf", Cx, Cy, Cz);
+	pEdit->AddString(m_str);
+
+	m_str.Format("求解Δd:  %lf", displacement);
+	pEdit->AddString(m_str);
+
+	pEdit->SetCurSel(pEdit->GetCount() - 1);
+	Cx_ANGLE15 = Cx;
+	Cy_ANGLE15 = Cy;
+	Cz_ANGLE15 = Cz;
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置END**********************************************/
+
+	//重投影测试位姿解是否正确
+	std::vector<cv::Point2f> projectedPoints;
+	Points3D.push_back(cv::Point3f(0, 100, 105));
+	cv::projectPoints(Points3D, rvec, tvec, cameraMatrix, distCoeffs, projectedPoints);
+}
 void CvSlovePNP::SloveEPNP_NEW15()
 {
 	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
@@ -125,76 +626,77 @@ void CvSlovePNP::SloveEPNP_NEW15()
 		Points2D.push_back(detectKeyPoint[i].pt);
 	}
 	std::sort(Points2D.begin(), Points2D.end(), compare_x);//按x坐标值大小升序排列
-	std::sort(Points2D.begin(), Points2D.begin() + 4, compare_y);//x坐标值最小的3个点，按照y坐标值升序排列
+	std::sort(Points2D.begin(), Points2D.begin() + 4, compare_y);//x坐标值最小的4个点，按照y坐标值升序排列
 	std::sort(Points2D.begin() + 4, Points2D.begin() + 8, compare_y);
 	std::sort(Points2D.begin() + 8, Points2D.begin() + 17, compare_y);
 	std::sort(Points2D.begin() + 17, Points2D.begin() + 21, compare_y);
-	std::sort(Points2D.begin() + 21, Points2D.end(), compare_y);//x坐标值最大的3个点，按照y坐标值升序排列
+	std::sort(Points2D.begin() + 21, Points2D.end(), compare_y);//x坐标值最大的4个点，按照y坐标值升序排列
 	//Points2D.erase(Points2D.begin() + 8, Points2D.end());//删除7个光标判别点，8点方案
 	//Points2D.erase(Points2D.begin()+7, Points2D.begin() + 12);//删除5个光标判别点，10点方案
 
 	//特征点世界坐标
 	std::vector<cv::Point3f> Points3D;
-	//Points3D.push_back(cv::Point3f(0, 0, 102.0104));//P1 三维坐标的单位是毫米
-	//Points3D.push_back(cv::Point3f(-1.8495, -98.9055, 98.5121));		//P6
-	//Points3D.push_back(cv::Point3f(-3.0386, -198.1092, 97.4885));		//P11
-	//Points3D.push_back(cv::Point3f(-1.1431, -297.9148, 98.9522));		//P16
+	Points3D.push_back(cv::Point3f(0, 0, 101.8642));//P1 三维坐标的单位是毫米
+	Points3D.push_back(cv::Point3f(1.7559, 95.6418, 98.0094));		//P7
+	Points3D.push_back(cv::Point3f(2.8632, 195.8575, 97.2249));		//P13
+	Points3D.push_back(cv::Point3f(1.2543, 296.5173,98.4156));		//P19
 
-	//Points3D.push_back(cv::Point3f(80.0171, -0.0863, 100.5740));		//P2
-	//Points3D.push_back(cv::Point3f(78.0894, -99.1832, 98.692));			//P7
-	//Points3D.push_back(cv::Point3f(76.7906, -198.3471, 98.2573));		//P12
-	//Points3D.push_back(cv::Point3f(78.7636, -298.0142, 98.6672));		//P17
+	Points3D.push_back(cv::Point3f(-79.9799, -2.7329, 100.5745));		//P2
+	Points3D.push_back(cv::Point3f(-78.2473, 95.0462, 98.4001));		//P8
+	Points3D.push_back(cv::Point3f(-76.9879, 194.703, 98.1159));		//P14
+	Points3D.push_back(cv::Point3f(-78.9254, 295.4227, 98.3087));		//P20
 
-	//Points3D.push_back(cv::Point3f(159.9465, 0.0772, 98.9556));			//P3
-	//Points3D.push_back(cv::Point3f(158.7918, -48.6771, -0.3517));		//P21
-	//Points3D.push_back(cv::Point3f(158.0159, -99.0831, 98.6862));		//P8
-	//Points3D.push_back(cv::Point3f(158.3571, -148.559, -0.3088));		//P22
-	//Points3D.push_back(cv::Point3f(156.7806, -198.6924, 98.489));		//P13
-	//Points3D.push_back(cv::Point3f(158.0823, -248.5183, -0.2834));		//P23
-	//Points3D.push_back(cv::Point3f(158.7624, -298.2561, 98.3556));		//P18
-	//Points3D.push_back(cv::Point3f(158.3202, -348.4419, -0.2937));		//P24
-	//Points3D.push_back(cv::Point3f(158.4048, -398.4069, -0.2375));		//P25
+	Points3D.push_back(cv::Point3f(-159.9838, -4.947, 98.9121));		//P3
+	Points3D.push_back(cv::Point3f(-158.652, 43.833, -0.29));		//P6
+	Points3D.push_back(cv::Point3f(-158.3842, 94.9418, 98.4764));	//P9
+	Points3D.push_back(cv::Point3f(-158.8815, 143.7132, -0.2839));		//P12
+	Points3D.push_back(cv::Point3f(-157.2452, 194.4011, 98.2977));//P15
+	Points3D.push_back(cv::Point3f(-158.335, 244.0331, -0.3264));		//P18
+	Points3D.push_back(cv::Point3f(-158.9172, 294.2362, 97.96));	//P21
+	Points3D.push_back(cv::Point3f(-158.6595, 343.6634, -0.3606));		//P24
+	Points3D.push_back(cv::Point3f(-158.4649, 393.7914, -0.3087));		//P25
 
-	//Points3D.push_back(cv::Point3f(240.0105, 0.2824, 97.7754));			//P4
-	//Points3D.push_back(cv::Point3f(238.0464, -98.8491, 99.3087));		//P9
-	//Points3D.push_back(cv::Point3f(236.717, -198.7044, 99.7689));		//P14
-	//Points3D.push_back(cv::Point3f(238.7564, -298.4565, 98.5745));		//P19
+	Points3D.push_back(cv::Point3f(-239.8114, -7.152, 98.02));			//P4
+	Points3D.push_back(cv::Point3f(-238.1499, 93.75, 99.5081));		//P10
+	Points3D.push_back(cv::Point3f(-237.1045, 193.1765, 99.8652));		//P16
+	Points3D.push_back(cv::Point3f(-238.6392, 292.6553, 98.5948));		//P22
 
-	//Points3D.push_back(cv::Point3f(319.9326, -0.1247, 96.3653));		//P5
-	//Points3D.push_back(cv::Point3f(318.0884, -99.1012, 99.6866));		//P10
-	//Points3D.push_back(cv::Point3f(316.6799, -199.0905, 100.7115));		//P15
-	//Points3D.push_back(cv::Point3f(318.5562, -298.4371, 98.6974));		//P20
+	Points3D.push_back(cv::Point3f(-319.6314, -9.5875, 96.7155));			//P5
+	Points3D.push_back(cv::Point3f(-317.9415, 93.6005, 100.1003));		//P11
+	Points3D.push_back(cv::Point3f(-316.9851, 192.9369, 100.8416));		//P17
+	Points3D.push_back(cv::Point3f(-318.6672, 291.5628, 98.9174));		//P23
 	
-	Points3D.push_back(cv::Point3f(0, 0, 100));//P1 三维坐标的单位是毫米
-	Points3D.push_back(cv::Point3f(0, -100, 100));		//P6
-	Points3D.push_back(cv::Point3f(0, -200, 100));		//P11
-	Points3D.push_back(cv::Point3f(0, -300, 100));		//P16
+	//Points3D.push_back(cv::Point3f(47.5789, 407.1668, 169.8168));//P1 三维坐标的单位是毫米
+	//Points3D.push_back(cv::Point3f(141.3161, 392.2496, 182.3110));		//P7
+	//Points3D.push_back(cv::Point3f(240.0176, 378.1010, 192.4528));		//P13
+	//Points3D.push_back(cv::Point3f(339.3242, 363.0495, 199.3860));		//P19
 
-	Points3D.push_back(cv::Point3f(80, 0, 100));		//P2
-	Points3D.push_back(cv::Point3f(80, -100, 100));			//P7
-	Points3D.push_back(cv::Point3f(80, -200, 100));		//P12
-	Points3D.push_back(cv::Point3f(80, -300, 100));		//P17
+	//Points3D.push_back(cv::Point3f(40.2834, 345.5651, 119.2408));		//P2
+	//Points3D.push_back(cv::Point3f(136.3951, 331.3753, 130.6281));		//P8
+	//Points3D.push_back(cv::Point3f(234.6343, 317.7378, 140.4371));		//P14
+	//Points3D.push_back(cv::Point3f(333.8219, 301.8001, 147.9250));		//P20
 
-	Points3D.push_back(cv::Point3f(160, 0, 100));			//P3
-	Points3D.push_back(cv::Point3f(160, -50, 0));		//P21
-	Points3D.push_back(cv::Point3f(160, -100, 100));		//P8
-	Points3D.push_back(cv::Point3f(160, -150, 0));		//P22
-	Points3D.push_back(cv::Point3f(160, -200, 100));		//P13
-	Points3D.push_back(cv::Point3f(160, -250, 0));		//P23
-	Points3D.push_back(cv::Point3f(160, -300, 100));		//P18
-	Points3D.push_back(cv::Point3f(160, -350, 0));		//P24
-	Points3D.push_back(cv::Point3f(160, -400, 0));		//P25
+	//Points3D.push_back(cv::Point3f(33.4381, 283.6361, 68.9792));		//P3
+	//Points3D.push_back(cv::Point3f(65.6843, 215.3452, 149.7186));		//P6
+	//Points3D.push_back(cv::Point3f(131.9004, 270.1303, 79.1423));	//P9
+	//Points3D.push_back(cv::Point3f(164.1084, 200.7185, 158.3707));		//P12
+	//Points3D.push_back(cv::Point3f(229.9553, 256.4955, 88.7762));	//P15
+	//Points3D.push_back(cv::Point3f(263.0007, 186.5913, 167.5965));		//P18
+	//Points3D.push_back(cv::Point3f(328.2006, 240.5560, 96.7608));	//P21
+	//Points3D.push_back(cv::Point3f(361.1669, 171.9028, 176.1964));		//P24
+	//Points3D.push_back(cv::Point3f(410.5890, 164.8296, 180.7003));		//P25
 
-	Points3D.push_back(cv::Point3f(240, 0, 100));			//P4
-	Points3D.push_back(cv::Point3f(240, -100, 100));		//P9
-	Points3D.push_back(cv::Point3f(240, -200, 100));		//P14
-	Points3D.push_back(cv::Point3f(240, -300, 100));		//P19
+	//Points3D.push_back(cv::Point3f(26.7349, 222.3241, 18.2446));			//P4
+	//Points3D.push_back(cv::Point3f(126.5076, 209.9261, 27.0709));		//P10
+	//Points3D.push_back(cv::Point3f(224.6109, 196.5607, 36.2336));		//P16
+	//Points3D.push_back(cv::Point3f(322.3630, 180.1925, 44.9855));		//P22
 
-	Points3D.push_back(cv::Point3f(320, 0, 100));		//P5
-	Points3D.push_back(cv::Point3f(320, -100, 100));		//P10
-	Points3D.push_back(cv::Point3f(320, -200, 100));		//P15
-	Points3D.push_back(cv::Point3f(320, -300, 100));		//P20
+	//Points3D.push_back(cv::Point3f(19.7389, 160.7924, -32.1913));			//P5
+	//Points3D.push_back(cv::Point3f(122.0701, 149.2756, -24.5904));		//P11
+	//Points3D.push_back(cv::Point3f(220.1413, 136.0962, -15.7854));		//P17
+	//Points3D.push_back(cv::Point3f(316.9400, 119.3284, -6.7051));		//P23
 
+	//15个点——左右各4个，中间7个
 	Points2D.erase(Points2D.begin(), Points2D.begin() + 4);
 	Points2D.erase(Points2D.begin()+11, Points2D.begin() + 13);
 	Points2D.erase(Points2D.begin() + 15, Points2D.end());
@@ -202,7 +704,6 @@ void CvSlovePNP::SloveEPNP_NEW15()
 	Points3D.erase(Points3D.begin(), Points3D.begin() + 4);
 	Points3D.erase(Points3D.begin() + 11, Points3D.begin() + 13);
 	Points3D.erase(Points3D.begin() + 15, Points3D.end());
-
 
 	/*m_str.Format("2D数组个数: %d，3D数组个数: %d", Points2D.size(), Points3D.size());
 	pEdit->AddString(m_str);*/
@@ -288,10 +789,388 @@ void CvSlovePNP::SloveEPNP_NEW15()
 
 	m_str.Format("求解Δd:  %lf", displacement);
 	pEdit->AddString(m_str);
+	m_str.Format("旋转角的变化量Δx: %f,Δy: %f,Δz: %f", thetax_out - thetax_new15, thetay_out - thetay_new15, thetaz_out - thetaz_new15);
+	pEdit->AddString(m_str);
+
 	pEdit->SetCurSel(pEdit->GetCount() - 1);
 	Cx_new15 = Cx;
 	Cy_new15 = Cy;
 	Cz_new15 = Cz;
+	thetax_new15 = thetax_out;
+	thetay_new15 = thetay_out;
+	thetaz_new15 = thetaz_out;
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置END**********************************************/
+
+	//重投影测试位姿解是否正确
+	std::vector<cv::Point2f> projectedPoints;
+	Points3D.push_back(cv::Point3f(0, 100, 105));
+	cv::projectPoints(Points3D, rvec, tvec, cameraMatrix, distCoeffs, projectedPoints);
+}
+void CvSlovePNP::SloveEPNP_LINE9()
+{
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
+
+	std::vector<cv::Point2f> Points2D;
+	std::vector<cv::Point2f> temp;
+
+
+	for (int i = 0; i<25; i++)
+	{
+		Points2D.push_back(detectKeyPoint[i].pt);
+	}
+	std::sort(Points2D.begin(), Points2D.end(), compare_x);//按x坐标值大小升序排列
+	std::sort(Points2D.begin(), Points2D.begin() + 4, compare_y);//x坐标值最小的4个点，按照y坐标值升序排列
+	std::sort(Points2D.begin() + 4, Points2D.begin() + 8, compare_y);
+	std::sort(Points2D.begin() + 8, Points2D.begin() + 17, compare_y);
+	std::sort(Points2D.begin() + 17, Points2D.begin() + 21, compare_y);
+	std::sort(Points2D.begin() + 21, Points2D.end(), compare_y);//x坐标值最大的3个点，按照y坐标值升序排列
+																//Points2D.erase(Points2D.begin() + 8, Points2D.end());//删除7个光标判别点，8点方案
+																//Points2D.erase(Points2D.begin()+7, Points2D.begin() + 12);//删除5个光标判别点，10点方案
+
+																//特征点世界坐标
+	std::vector<cv::Point3f> Points3D;
+	Points3D.push_back(cv::Point3f(0, 0, 101.8642));//P1 三维坐标的单位是毫米
+	Points3D.push_back(cv::Point3f(1.7559, 95.6418, 98.0094));		//P7
+	Points3D.push_back(cv::Point3f(2.8632, 195.8575, 97.2249));		//P13
+	Points3D.push_back(cv::Point3f(1.2543, 296.5173, 98.4156));		//P19
+
+	Points3D.push_back(cv::Point3f(-79.9799, -2.7329, 100.5745));		//P2
+	Points3D.push_back(cv::Point3f(-78.2473, 95.0462, 98.4001));		//P8
+	Points3D.push_back(cv::Point3f(-76.9879, 194.703, 98.1159));		//P14
+	Points3D.push_back(cv::Point3f(-78.9254, 295.4227, 98.3087));		//P20
+
+	Points3D.push_back(cv::Point3f(-159.9838, -4.947, 98.9121));		//P3
+	Points3D.push_back(cv::Point3f(-158.652, 43.833, -0.29));		//P6
+	Points3D.push_back(cv::Point3f(-158.3842, 94.9418, 98.4764));	//P9
+	Points3D.push_back(cv::Point3f(-158.8815, 143.7132, -0.2839));		//P12
+	Points3D.push_back(cv::Point3f(-157.2452, 194.4011, 98.2977));//P15
+	Points3D.push_back(cv::Point3f(-158.335, 244.0331, -0.3264));		//P18
+	Points3D.push_back(cv::Point3f(-158.9172, 294.2362, 97.96));	//P21
+	Points3D.push_back(cv::Point3f(-158.6595, 343.6634, -0.3606));		//P24
+	Points3D.push_back(cv::Point3f(-158.4649, 393.7914, -0.3087));		//P25
+
+	Points3D.push_back(cv::Point3f(-239.8114, -7.152, 98.02));			//P4
+	Points3D.push_back(cv::Point3f(-238.1499, 93.75, 99.5081));		//P10
+	Points3D.push_back(cv::Point3f(-237.1045, 193.1765, 99.8652));		//P16
+	Points3D.push_back(cv::Point3f(-238.6392, 292.6553, 98.5948));		//P22
+
+	Points3D.push_back(cv::Point3f(-319.6314, -9.5875, 96.7155));			//P5
+	Points3D.push_back(cv::Point3f(-317.9415, 93.6005, 100.1003));		//P11
+	Points3D.push_back(cv::Point3f(-316.9851, 192.9369, 100.8416));		//P17
+	Points3D.push_back(cv::Point3f(-318.6672, 291.5628, 98.9174));		//P23
+
+																		//Points3D.push_back(cv::Point3f(47.5789, 407.1668, 169.8168));//P1 三维坐标的单位是毫米
+																		//Points3D.push_back(cv::Point3f(141.3161, 392.2496, 182.3110));		//P7
+																		//Points3D.push_back(cv::Point3f(240.0176, 378.1010, 192.4528));		//P13
+																		//Points3D.push_back(cv::Point3f(339.3242, 363.0495, 199.3860));		//P19
+
+																		//Points3D.push_back(cv::Point3f(40.2834, 345.5651, 119.2408));		//P2
+																		//Points3D.push_back(cv::Point3f(136.3951, 331.3753, 130.6281));		//P8
+																		//Points3D.push_back(cv::Point3f(234.6343, 317.7378, 140.4371));		//P14
+																		//Points3D.push_back(cv::Point3f(333.8219, 301.8001, 147.9250));		//P20
+
+																		//Points3D.push_back(cv::Point3f(33.4381, 283.6361, 68.9792));		//P3
+																		//Points3D.push_back(cv::Point3f(65.6843, 215.3452, 149.7186));		//P6
+																		//Points3D.push_back(cv::Point3f(131.9004, 270.1303, 79.1423));	//P9
+																		//Points3D.push_back(cv::Point3f(164.1084, 200.7185, 158.3707));		//P12
+																		//Points3D.push_back(cv::Point3f(229.9553, 256.4955, 88.7762));	//P15
+																		//Points3D.push_back(cv::Point3f(263.0007, 186.5913, 167.5965));		//P18
+																		//Points3D.push_back(cv::Point3f(328.2006, 240.5560, 96.7608));	//P21
+																		//Points3D.push_back(cv::Point3f(361.1669, 171.9028, 176.1964));		//P24
+																		//Points3D.push_back(cv::Point3f(410.5890, 164.8296, 180.7003));		//P25
+
+																		//Points3D.push_back(cv::Point3f(26.7349, 222.3241, 18.2446));			//P4
+																		//Points3D.push_back(cv::Point3f(126.5076, 209.9261, 27.0709));		//P10
+																		//Points3D.push_back(cv::Point3f(224.6109, 196.5607, 36.2336));		//P16
+																		//Points3D.push_back(cv::Point3f(322.3630, 180.1925, 44.9855));		//P22
+
+																		//Points3D.push_back(cv::Point3f(19.7389, 160.7924, -32.1913));			//P5
+																		//Points3D.push_back(cv::Point3f(122.0701, 149.2756, -24.5904));		//P11
+																		//Points3D.push_back(cv::Point3f(220.1413, 136.0962, -15.7854));		//P17
+																		//Points3D.push_back(cv::Point3f(316.9400, 119.3284, -6.7051));		//P23
+
+	//中间9个点
+	Points2D.erase(Points2D.begin(), Points2D.begin() + 8);
+	Points2D.erase(Points2D.begin() + 9, Points2D.end());
+
+	Points3D.erase(Points3D.begin(), Points3D.begin() + 8);
+	Points3D.erase(Points3D.begin() + 9, Points3D.end());
+	
+	/*m_str.Format("2D数组个数: %d，3D数组个数: %d", Points2D.size(), Points3D.size());
+	pEdit->AddString(m_str);*/
+
+	//初始化输出矩阵
+	cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
+	cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+
+	//三种方法求解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);	//实测迭代法似乎只能用4个共面特征点求解，5个点或非共面4点解不出正确的解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_P3P);			//Gao的方法可以使用任意四个特征点，特征点数量不能少于4也不能多于4
+	solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_EPNP);			//该方法可以用于N点位姿估计
+
+																								//旋转向量变旋转矩阵
+																								//提取旋转矩阵
+	double rm[9];
+	cv::Mat rotM(3, 3, CV_64FC1, rm);
+	Rodrigues(rvec, rotM);
+	double r11 = rotM.ptr<double>(0)[0];
+	double r12 = rotM.ptr<double>(0)[1];
+	double r13 = rotM.ptr<double>(0)[2];
+	double r21 = rotM.ptr<double>(1)[0];
+	double r22 = rotM.ptr<double>(1)[1];
+	double r23 = rotM.ptr<double>(1)[2];
+	double r31 = rotM.ptr<double>(2)[0];
+	double r32 = rotM.ptr<double>(2)[1];
+	double r33 = rotM.ptr<double>(2)[2];
+
+	/*************************************此处计算出相机的旋转角**********************************************/
+	//计算出相机坐标系的三轴旋转欧拉角，旋转后可以转出世界坐标系。
+	//旋转顺序为z、y、x
+	//原理见帖子：
+	double thetaz = atan2(r21, r11) / CV_PI * 180;
+	double thetay = atan2(-1 * r31, sqrt(r32*r32 + r33 * r33)) / CV_PI * 180;
+	double thetax = atan2(r32, r33) / CV_PI * 180;
+	double thetaz_out = -thetaz;
+	double thetay_out = -thetay;
+	double thetax_out = -thetax;
+
+	//ofstream fout("D:\\pnp_theta.txt");
+	//fout << -1 * thetax << endl << -1 * thetay << endl << -1 * thetaz << endl;
+	////cout << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
+	//fout.close();
+
+	m_str.Format("相机的三轴旋转角 x: %f, y: %f, z: %f", thetax_out, thetay_out, thetaz_out);
+	pEdit->AddString(m_str);
+	/*************************************此处计算出相机的旋转角END**********************************************/
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置**********************************************/
+	/* 当原始坐标系经过旋转z、y、x三次旋转后，会与世界坐标系完全平行，而三次旋转中向量OcOw会跟着旋转 */
+	/* 而我们想知道的是两个坐标系完全平行时，OcOw的值 */
+	/* 因此，原始坐标系每次旋转完成后，对向量OcOw进行一次反相旋转，最终可以得到两个坐标系完全平行时的OcOw */
+	/* 该向量乘以-1就是世界坐标系下相机的坐标 */
+	/***********************************************************************************/
+
+	//提出平移矩阵，表示从相机坐标系原点，跟着向量(x,y,z)走，就到了世界坐标系原点
+	double tx = tvec.ptr<double>(0)[0];
+	double ty = tvec.ptr<double>(0)[1];
+	double tz = tvec.ptr<double>(0)[2];
+
+	//x y z 为唯一向量在相机原始坐标系下的向量值
+	//也就是向量OcOw在相机坐标系下的值
+	double x = tx, y = ty, z = tz;
+
+	//进行三次反向旋转
+	codeRotateByZ(x, y, -1 * thetaz, x, y);
+	codeRotateByY(x, z, -1 * thetay, x, z);
+	codeRotateByX(y, z, -1 * thetax, y, z);
+
+	//获得相机在世界坐标系下的位置坐标
+	//即向量OcOw在世界坐标系下的值
+	double Cx = x * -1;
+	double Cy = y * -1;
+	double Cz = z * -1;
+	displacement = sqrt(pow((Cx_LINE9 - Cx), 2) + pow((Cy_LINE9 - Cy), 2) + pow((Cz_LINE9 - Cz), 2));
+	//ofstream fout2("D:\\pnp_t.txt");
+	//fout2 << Cx << std::endl << Cy << endl << Cz << endl;
+	////cout << "相机的世界坐标：" << Cx << ", " << Cy << ", " << Cz << endl;
+	//fout2.close();
+
+	m_str.Format("相机的世界坐标 x: %lf, y: %lf, z: %lf", Cx, Cy, Cz);
+	pEdit->AddString(m_str);
+
+	m_str.Format("求解Δd:  %lf", displacement);
+	pEdit->AddString(m_str);
+
+	pEdit->SetCurSel(pEdit->GetCount() - 1);
+	Cx_LINE9 = Cx;
+	Cy_LINE9 = Cy;
+	Cz_LINE9 = Cz;
+	
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置END**********************************************/
+
+	//重投影测试位姿解是否正确
+	std::vector<cv::Point2f> projectedPoints;
+	Points3D.push_back(cv::Point3f(0, 100, 105));
+	cv::projectPoints(Points3D, rvec, tvec, cameraMatrix, distCoeffs, projectedPoints);
+}
+void CvSlovePNP::SloveEPNP_LINE7()
+{
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
+
+	std::vector<cv::Point2f> Points2D;
+	std::vector<cv::Point2f> temp;
+
+
+	for (int i = 0; i<25; i++)
+	{
+		Points2D.push_back(detectKeyPoint[i].pt);
+	}
+	std::sort(Points2D.begin(), Points2D.end(), compare_x);//按x坐标值大小升序排列
+	std::sort(Points2D.begin(), Points2D.begin() + 4, compare_y);//x坐标值最小的3个点，按照y坐标值升序排列
+	std::sort(Points2D.begin() + 4, Points2D.begin() + 8, compare_y);
+	std::sort(Points2D.begin() + 8, Points2D.begin() + 17, compare_y);
+	std::sort(Points2D.begin() + 17, Points2D.begin() + 21, compare_y);
+	std::sort(Points2D.begin() + 21, Points2D.end(), compare_y);//x坐标值最大的3个点，按照y坐标值升序排列
+																//Points2D.erase(Points2D.begin() + 8, Points2D.end());//删除7个光标判别点，8点方案
+																//Points2D.erase(Points2D.begin()+7, Points2D.begin() + 12);//删除5个光标判别点，10点方案
+
+																//特征点世界坐标
+	std::vector<cv::Point3f> Points3D;
+	Points3D.push_back(cv::Point3f(0, 0, 101.8642));//P1 三维坐标的单位是毫米
+	Points3D.push_back(cv::Point3f(1.7559, 95.6418, 98.0094));		//P7
+	Points3D.push_back(cv::Point3f(2.8632, 195.8575, 97.2249));		//P13
+	Points3D.push_back(cv::Point3f(1.2543, 296.5173, 98.4156));		//P19
+
+	Points3D.push_back(cv::Point3f(-79.9799, -2.7329, 100.5745));		//P2
+	Points3D.push_back(cv::Point3f(-78.2473, 95.0462, 98.4001));		//P8
+	Points3D.push_back(cv::Point3f(-76.9879, 194.703, 98.1159));		//P14
+	Points3D.push_back(cv::Point3f(-78.9254, 295.4227, 98.3087));		//P20
+
+	Points3D.push_back(cv::Point3f(-159.9838, -4.947, 98.9121));		//P3
+	Points3D.push_back(cv::Point3f(-158.652, 43.833, -0.29));		//P6
+	Points3D.push_back(cv::Point3f(-158.3842, 94.9418, 98.4764));	//P9
+	Points3D.push_back(cv::Point3f(-158.8815, 143.7132, -0.2839));		//P12
+	Points3D.push_back(cv::Point3f(-157.2452, 194.4011, 98.2977));//P15
+	Points3D.push_back(cv::Point3f(-158.335, 244.0331, -0.3264));		//P18
+	Points3D.push_back(cv::Point3f(-158.9172, 294.2362, 97.96));	//P21
+	Points3D.push_back(cv::Point3f(-158.6595, 343.6634, -0.3606));		//P24
+	Points3D.push_back(cv::Point3f(-158.4649, 393.7914, -0.3087));		//P25
+
+	Points3D.push_back(cv::Point3f(-239.8114, -7.152, 98.02));			//P4
+	Points3D.push_back(cv::Point3f(-238.1499, 93.75, 99.5081));		//P10
+	Points3D.push_back(cv::Point3f(-237.1045, 193.1765, 99.8652));		//P16
+	Points3D.push_back(cv::Point3f(-238.6392, 292.6553, 98.5948));		//P22
+
+	Points3D.push_back(cv::Point3f(-319.6314, -9.5875, 96.7155));			//P5
+	Points3D.push_back(cv::Point3f(-317.9415, 93.6005, 100.1003));		//P11
+	Points3D.push_back(cv::Point3f(-316.9851, 192.9369, 100.8416));		//P17
+	Points3D.push_back(cv::Point3f(-318.6672, 291.5628, 98.9174));		//P23
+
+																		//Points3D.push_back(cv::Point3f(47.5789, 407.1668, 169.8168));//P1 三维坐标的单位是毫米
+																		//Points3D.push_back(cv::Point3f(141.3161, 392.2496, 182.3110));		//P7
+																		//Points3D.push_back(cv::Point3f(240.0176, 378.1010, 192.4528));		//P13
+																		//Points3D.push_back(cv::Point3f(339.3242, 363.0495, 199.3860));		//P19
+
+																		//Points3D.push_back(cv::Point3f(40.2834, 345.5651, 119.2408));		//P2
+																		//Points3D.push_back(cv::Point3f(136.3951, 331.3753, 130.6281));		//P8
+																		//Points3D.push_back(cv::Point3f(234.6343, 317.7378, 140.4371));		//P14
+																		//Points3D.push_back(cv::Point3f(333.8219, 301.8001, 147.9250));		//P20
+
+																		//Points3D.push_back(cv::Point3f(33.4381, 283.6361, 68.9792));		//P3
+																		//Points3D.push_back(cv::Point3f(65.6843, 215.3452, 149.7186));		//P6
+																		//Points3D.push_back(cv::Point3f(131.9004, 270.1303, 79.1423));	//P9
+																		//Points3D.push_back(cv::Point3f(164.1084, 200.7185, 158.3707));		//P12
+																		//Points3D.push_back(cv::Point3f(229.9553, 256.4955, 88.7762));	//P15
+																		//Points3D.push_back(cv::Point3f(263.0007, 186.5913, 167.5965));		//P18
+																		//Points3D.push_back(cv::Point3f(328.2006, 240.5560, 96.7608));	//P21
+																		//Points3D.push_back(cv::Point3f(361.1669, 171.9028, 176.1964));		//P24
+																		//Points3D.push_back(cv::Point3f(410.5890, 164.8296, 180.7003));		//P25
+
+																		//Points3D.push_back(cv::Point3f(26.7349, 222.3241, 18.2446));			//P4
+																		//Points3D.push_back(cv::Point3f(126.5076, 209.9261, 27.0709));		//P10
+																		//Points3D.push_back(cv::Point3f(224.6109, 196.5607, 36.2336));		//P16
+																		//Points3D.push_back(cv::Point3f(322.3630, 180.1925, 44.9855));		//P22
+
+																		//Points3D.push_back(cv::Point3f(19.7389, 160.7924, -32.1913));			//P5
+																		//Points3D.push_back(cv::Point3f(122.0701, 149.2756, -24.5904));		//P11
+																		//Points3D.push_back(cv::Point3f(220.1413, 136.0962, -15.7854));		//P17
+																		//Points3D.push_back(cv::Point3f(316.9400, 119.3284, -6.7051));		//P23
+
+	//中间7个点
+	Points2D.erase(Points2D.begin(), Points2D.begin() + 8);
+	Points2D.erase(Points2D.begin() + 7, Points2D.end());
+
+	Points3D.erase(Points3D.begin(), Points3D.begin() + 8);
+	Points3D.erase(Points3D.begin() + 7, Points3D.end());
+
+	/*m_str.Format("2D数组个数: %d，3D数组个数: %d", Points2D.size(), Points3D.size());
+	pEdit->AddString(m_str);*/
+
+	//初始化输出矩阵
+	cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
+	cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+
+	//三种方法求解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);	//实测迭代法似乎只能用4个共面特征点求解，5个点或非共面4点解不出正确的解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_P3P);			//Gao的方法可以使用任意四个特征点，特征点数量不能少于4也不能多于4
+	solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_EPNP);			//该方法可以用于N点位姿估计
+
+																								//旋转向量变旋转矩阵
+																								//提取旋转矩阵
+	double rm[9];
+	cv::Mat rotM(3, 3, CV_64FC1, rm);
+	Rodrigues(rvec, rotM);
+	double r11 = rotM.ptr<double>(0)[0];
+	double r12 = rotM.ptr<double>(0)[1];
+	double r13 = rotM.ptr<double>(0)[2];
+	double r21 = rotM.ptr<double>(1)[0];
+	double r22 = rotM.ptr<double>(1)[1];
+	double r23 = rotM.ptr<double>(1)[2];
+	double r31 = rotM.ptr<double>(2)[0];
+	double r32 = rotM.ptr<double>(2)[1];
+	double r33 = rotM.ptr<double>(2)[2];
+
+	/*************************************此处计算出相机的旋转角**********************************************/
+	//计算出相机坐标系的三轴旋转欧拉角，旋转后可以转出世界坐标系。
+	//旋转顺序为z、y、x
+	//原理见帖子：
+	double thetaz = atan2(r21, r11) / CV_PI * 180;
+	double thetay = atan2(-1 * r31, sqrt(r32*r32 + r33 * r33)) / CV_PI * 180;
+	double thetax = atan2(r32, r33) / CV_PI * 180;
+	double thetaz_out = -thetaz;
+	double thetay_out = -thetay;
+	double thetax_out = -thetax;
+
+	//ofstream fout("D:\\pnp_theta.txt");
+	//fout << -1 * thetax << endl << -1 * thetay << endl << -1 * thetaz << endl;
+	////cout << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
+	//fout.close();
+
+	m_str.Format("相机的三轴旋转角 x: %f, y: %f, z: %f", thetax_out, thetay_out, thetaz_out);
+	pEdit->AddString(m_str);
+	/*************************************此处计算出相机的旋转角END**********************************************/
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置**********************************************/
+	/* 当原始坐标系经过旋转z、y、x三次旋转后，会与世界坐标系完全平行，而三次旋转中向量OcOw会跟着旋转 */
+	/* 而我们想知道的是两个坐标系完全平行时，OcOw的值 */
+	/* 因此，原始坐标系每次旋转完成后，对向量OcOw进行一次反相旋转，最终可以得到两个坐标系完全平行时的OcOw */
+	/* 该向量乘以-1就是世界坐标系下相机的坐标 */
+	/***********************************************************************************/
+
+	//提出平移矩阵，表示从相机坐标系原点，跟着向量(x,y,z)走，就到了世界坐标系原点
+	double tx = tvec.ptr<double>(0)[0];
+	double ty = tvec.ptr<double>(0)[1];
+	double tz = tvec.ptr<double>(0)[2];
+
+	//x y z 为唯一向量在相机原始坐标系下的向量值
+	//也就是向量OcOw在相机坐标系下的值
+	double x = tx, y = ty, z = tz;
+
+	//进行三次反向旋转
+	codeRotateByZ(x, y, -1 * thetaz, x, y);
+	codeRotateByY(x, z, -1 * thetay, x, z);
+	codeRotateByX(y, z, -1 * thetax, y, z);
+
+	//获得相机在世界坐标系下的位置坐标
+	//即向量OcOw在世界坐标系下的值
+	double Cx = x * -1;
+	double Cy = y * -1;
+	double Cz = z * -1;
+	displacement = sqrt(pow((Cx_LINE7 - Cx), 2) + pow((Cy_LINE7 - Cy), 2) + pow((Cz_LINE7 - Cz), 2));
+	//ofstream fout2("D:\\pnp_t.txt");
+	//fout2 << Cx << std::endl << Cy << endl << Cz << endl;
+	////cout << "相机的世界坐标：" << Cx << ", " << Cy << ", " << Cz << endl;
+	//fout2.close();
+
+	m_str.Format("相机的世界坐标 x: %lf, y: %lf, z: %lf", Cx, Cy, Cz);
+	pEdit->AddString(m_str);
+
+	m_str.Format("求解Δd:  %lf", displacement);
+	pEdit->AddString(m_str);
+	pEdit->SetCurSel(pEdit->GetCount() - 1);
+	Cx_LINE7 = Cx;
+	Cy_LINE7 = Cy;
+	Cz_LINE7 = Cz;
 
 	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置END**********************************************/
 
@@ -300,6 +1179,399 @@ void CvSlovePNP::SloveEPNP_NEW15()
 	Points3D.push_back(cv::Point3f(0, 100, 105));
 	cv::projectPoints(Points3D, rvec, tvec, cameraMatrix, distCoeffs, projectedPoints);
 }
+void CvSlovePNP::SloveEPNP_L14()
+{
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
+
+	std::vector<cv::Point2f> Points2D;
+	std::vector<cv::Point2f> temp;
+
+
+	for (int i = 0; i<25; i++)
+	{
+		Points2D.push_back(detectKeyPoint[i].pt);
+	}
+	std::sort(Points2D.begin(), Points2D.end(), compare_x);//按x坐标值大小升序排列
+	std::sort(Points2D.begin(), Points2D.begin() + 4, compare_y);//x坐标值最小的3个点，按照y坐标值升序排列
+	std::sort(Points2D.begin() + 4, Points2D.begin() + 8, compare_y);
+	std::sort(Points2D.begin() + 8, Points2D.begin() + 17, compare_y);
+	std::sort(Points2D.begin() + 17, Points2D.begin() + 21, compare_y);
+	std::sort(Points2D.begin() + 21, Points2D.end(), compare_y);//x坐标值最大的3个点，按照y坐标值升序排列
+																//Points2D.erase(Points2D.begin() + 8, Points2D.end());//删除7个光标判别点，8点方案
+																//Points2D.erase(Points2D.begin()+7, Points2D.begin() + 12);//删除5个光标判别点，10点方案
+
+																//特征点世界坐标
+	std::vector<cv::Point3f> Points3D;
+	Points3D.push_back(cv::Point3f(0, 0, 101.8642));//P1 三维坐标的单位是毫米
+	Points3D.push_back(cv::Point3f(1.7559, 95.6418, 98.0094));		//P7
+	Points3D.push_back(cv::Point3f(2.8632, 195.8575, 97.2249));		//P13
+	Points3D.push_back(cv::Point3f(1.2543, 296.5173, 98.4156));		//P19
+
+	Points3D.push_back(cv::Point3f(-79.9799, -2.7329, 100.5745));		//P2
+	Points3D.push_back(cv::Point3f(-78.2473, 95.0462, 98.4001));		//P8
+	Points3D.push_back(cv::Point3f(-76.9879, 194.703, 98.1159));		//P14
+	Points3D.push_back(cv::Point3f(-78.9254, 295.4227, 98.3087));		//P20
+
+	Points3D.push_back(cv::Point3f(-159.9838, -4.947, 98.9121));		//P3
+	Points3D.push_back(cv::Point3f(-158.652, 43.833, -0.29));		//P6
+	Points3D.push_back(cv::Point3f(-158.3842, 94.9418, 98.4764));	//P9
+	Points3D.push_back(cv::Point3f(-158.8815, 143.7132, -0.2839));		//P12
+	Points3D.push_back(cv::Point3f(-157.2452, 194.4011, 98.2977));//P15
+	Points3D.push_back(cv::Point3f(-158.335, 244.0331, -0.3264));		//P18
+	Points3D.push_back(cv::Point3f(-158.9172, 294.2362, 97.96));	//P21
+	Points3D.push_back(cv::Point3f(-158.6595, 343.6634, -0.3606));		//P24
+	Points3D.push_back(cv::Point3f(-158.4649, 393.7914, -0.3087));		//P25
+
+	Points3D.push_back(cv::Point3f(-239.8114, -7.152, 98.02));			//P4
+	Points3D.push_back(cv::Point3f(-238.1499, 93.75, 99.5081));		//P10
+	Points3D.push_back(cv::Point3f(-237.1045, 193.1765, 99.8652));		//P16
+	Points3D.push_back(cv::Point3f(-238.6392, 292.6553, 98.5948));		//P22
+
+	Points3D.push_back(cv::Point3f(-319.6314, -9.5875, 96.7155));			//P5
+	Points3D.push_back(cv::Point3f(-317.9415, 93.6005, 100.1003));		//P11
+	Points3D.push_back(cv::Point3f(-316.9851, 192.9369, 100.8416));		//P17
+	Points3D.push_back(cv::Point3f(-318.6672, 291.5628, 98.9174));		//P23
+
+																		//Points3D.push_back(cv::Point3f(47.5789, 407.1668, 169.8168));//P1 三维坐标的单位是毫米
+																		//Points3D.push_back(cv::Point3f(141.3161, 392.2496, 182.3110));		//P7
+																		//Points3D.push_back(cv::Point3f(240.0176, 378.1010, 192.4528));		//P13
+																		//Points3D.push_back(cv::Point3f(339.3242, 363.0495, 199.3860));		//P19
+
+																		//Points3D.push_back(cv::Point3f(40.2834, 345.5651, 119.2408));		//P2
+																		//Points3D.push_back(cv::Point3f(136.3951, 331.3753, 130.6281));		//P8
+																		//Points3D.push_back(cv::Point3f(234.6343, 317.7378, 140.4371));		//P14
+																		//Points3D.push_back(cv::Point3f(333.8219, 301.8001, 147.9250));		//P20
+
+																		//Points3D.push_back(cv::Point3f(33.4381, 283.6361, 68.9792));		//P3
+																		//Points3D.push_back(cv::Point3f(65.6843, 215.3452, 149.7186));		//P6
+																		//Points3D.push_back(cv::Point3f(131.9004, 270.1303, 79.1423));	//P9
+																		//Points3D.push_back(cv::Point3f(164.1084, 200.7185, 158.3707));		//P12
+																		//Points3D.push_back(cv::Point3f(229.9553, 256.4955, 88.7762));	//P15
+																		//Points3D.push_back(cv::Point3f(263.0007, 186.5913, 167.5965));		//P18
+																		//Points3D.push_back(cv::Point3f(328.2006, 240.5560, 96.7608));	//P21
+																		//Points3D.push_back(cv::Point3f(361.1669, 171.9028, 176.1964));		//P24
+																		//Points3D.push_back(cv::Point3f(410.5890, 164.8296, 180.7003));		//P25
+
+																		//Points3D.push_back(cv::Point3f(26.7349, 222.3241, 18.2446));			//P4
+																		//Points3D.push_back(cv::Point3f(126.5076, 209.9261, 27.0709));		//P10
+																		//Points3D.push_back(cv::Point3f(224.6109, 196.5607, 36.2336));		//P16
+																		//Points3D.push_back(cv::Point3f(322.3630, 180.1925, 44.9855));		//P22
+
+																		//Points3D.push_back(cv::Point3f(19.7389, 160.7924, -32.1913));			//P5
+																		//Points3D.push_back(cv::Point3f(122.0701, 149.2756, -24.5904));		//P11
+																		//Points3D.push_back(cv::Point3f(220.1413, 136.0962, -15.7854));		//P17
+																		//Points3D.push_back(cv::Point3f(316.9400, 119.3284, -6.7051));		//P23
+
+
+	//L形14个点
+	Points2D.erase(Points2D.begin() + 8, Points2D.begin() + 12);
+	Points2D.erase(Points2D.begin() + 9, Points2D.begin() + 10);
+	Points2D.erase(Points2D.begin() + 10, Points2D.begin() + 14);
+	Points2D.erase(Points2D.begin() + 12, Points2D.begin() + 14);
+
+	Points3D.erase(Points3D.begin() + 8, Points3D.begin() + 12);
+	Points3D.erase(Points3D.begin() + 9, Points3D.begin() + 10);
+	Points3D.erase(Points3D.begin() + 10, Points3D.begin() + 14);
+	Points3D.erase(Points3D.begin() + 12, Points3D.begin() + 14);
+
+
+	/*m_str.Format("2D数组个数: %d，3D数组个数: %d", Points2D.size(), Points3D.size());
+	pEdit->AddString(m_str);*/
+
+	//初始化输出矩阵
+	cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
+	cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+
+	//三种方法求解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);	//实测迭代法似乎只能用4个共面特征点求解，5个点或非共面4点解不出正确的解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_P3P);			//Gao的方法可以使用任意四个特征点，特征点数量不能少于4也不能多于4
+	solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_EPNP);			//该方法可以用于N点位姿估计
+
+																								//旋转向量变旋转矩阵
+																								//提取旋转矩阵
+	double rm[9];
+	cv::Mat rotM(3, 3, CV_64FC1, rm);
+	Rodrigues(rvec, rotM);
+	double r11 = rotM.ptr<double>(0)[0];
+	double r12 = rotM.ptr<double>(0)[1];
+	double r13 = rotM.ptr<double>(0)[2];
+	double r21 = rotM.ptr<double>(1)[0];
+	double r22 = rotM.ptr<double>(1)[1];
+	double r23 = rotM.ptr<double>(1)[2];
+	double r31 = rotM.ptr<double>(2)[0];
+	double r32 = rotM.ptr<double>(2)[1];
+	double r33 = rotM.ptr<double>(2)[2];
+
+	/*************************************此处计算出相机的旋转角**********************************************/
+	//计算出相机坐标系的三轴旋转欧拉角，旋转后可以转出世界坐标系。
+	//旋转顺序为z、y、x
+	//原理见帖子：
+	double thetaz = atan2(r21, r11) / CV_PI * 180;
+	double thetay = atan2(-1 * r31, sqrt(r32*r32 + r33 * r33)) / CV_PI * 180;
+	double thetax = atan2(r32, r33) / CV_PI * 180;
+	double thetaz_out = -thetaz;
+	double thetay_out = -thetay;
+	double thetax_out = -thetax;
+
+	//ofstream fout("D:\\pnp_theta.txt");
+	//fout << -1 * thetax << endl << -1 * thetay << endl << -1 * thetaz << endl;
+	////cout << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
+	//fout.close();
+
+	m_str.Format("相机的三轴旋转角 x: %f, y: %f, z: %f", thetax_out, thetay_out, thetaz_out);
+	pEdit->AddString(m_str);
+	/*************************************此处计算出相机的旋转角END**********************************************/
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置**********************************************/
+	/* 当原始坐标系经过旋转z、y、x三次旋转后，会与世界坐标系完全平行，而三次旋转中向量OcOw会跟着旋转 */
+	/* 而我们想知道的是两个坐标系完全平行时，OcOw的值 */
+	/* 因此，原始坐标系每次旋转完成后，对向量OcOw进行一次反相旋转，最终可以得到两个坐标系完全平行时的OcOw */
+	/* 该向量乘以-1就是世界坐标系下相机的坐标 */
+	/***********************************************************************************/
+
+	//提出平移矩阵，表示从相机坐标系原点，跟着向量(x,y,z)走，就到了世界坐标系原点
+	double tx = tvec.ptr<double>(0)[0];
+	double ty = tvec.ptr<double>(0)[1];
+	double tz = tvec.ptr<double>(0)[2];
+
+	//x y z 为唯一向量在相机原始坐标系下的向量值
+	//也就是向量OcOw在相机坐标系下的值
+	double x = tx, y = ty, z = tz;
+
+	//进行三次反向旋转
+	codeRotateByZ(x, y, -1 * thetaz, x, y);
+	codeRotateByY(x, z, -1 * thetay, x, z);
+	codeRotateByX(y, z, -1 * thetax, y, z);
+
+	//获得相机在世界坐标系下的位置坐标
+	//即向量OcOw在世界坐标系下的值
+	double Cx = x * -1;
+	double Cy = y * -1;
+	double Cz = z * -1;
+	displacement = sqrt(pow((Cx_L14 - Cx), 2) + pow((Cy_L14 - Cy), 2) + pow((Cz_L14 - Cz), 2));
+	//ofstream fout2("D:\\pnp_t.txt");
+	//fout2 << Cx << std::endl << Cy << endl << Cz << endl;
+	////cout << "相机的世界坐标：" << Cx << ", " << Cy << ", " << Cz << endl;
+	//fout2.close();
+
+	m_str.Format("相机的世界坐标 x: %lf, y: %lf, z: %lf", Cx, Cy, Cz);
+	pEdit->AddString(m_str);
+
+	m_str.Format("求解Δd:  %lf", displacement);
+	pEdit->AddString(m_str);
+
+	pEdit->SetCurSel(pEdit->GetCount() - 1);
+	Cx_L14 = Cx;
+	Cy_L14 = Cy;
+	Cz_L14 = Cz;
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置END**********************************************/
+
+	//重投影测试位姿解是否正确
+	std::vector<cv::Point2f> projectedPoints;
+	Points3D.push_back(cv::Point3f(0, 100, 105));
+	cv::projectPoints(Points3D, rvec, tvec, cameraMatrix, distCoeffs, projectedPoints);
+}
+
+void CvSlovePNP::SloveEPNP_Z13()
+{
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
+
+	std::vector<cv::Point2f> Points2D;
+	std::vector<cv::Point2f> temp;
+
+
+	for (int i = 0; i<25; i++)
+	{
+		Points2D.push_back(detectKeyPoint[i].pt);
+	}
+	std::sort(Points2D.begin(), Points2D.end(), compare_x);//按x坐标值大小升序排列
+	std::sort(Points2D.begin(), Points2D.begin() + 4, compare_y);//x坐标值最小的3个点，按照y坐标值升序排列
+	std::sort(Points2D.begin() + 4, Points2D.begin() + 8, compare_y);
+	std::sort(Points2D.begin() + 8, Points2D.begin() + 17, compare_y);
+	std::sort(Points2D.begin() + 17, Points2D.begin() + 21, compare_y);
+	std::sort(Points2D.begin() + 21, Points2D.end(), compare_y);//x坐标值最大的3个点，按照y坐标值升序排列
+																//Points2D.erase(Points2D.begin() + 8, Points2D.end());//删除7个光标判别点，8点方案
+																//Points2D.erase(Points2D.begin()+7, Points2D.begin() + 12);//删除5个光标判别点，10点方案
+
+																//特征点世界坐标
+	std::vector<cv::Point3f> Points3D;
+	Points3D.push_back(cv::Point3f(0, 0, 101.8642));//P1 三维坐标的单位是毫米
+	Points3D.push_back(cv::Point3f(1.7559, 95.6418, 98.0094));		//P7
+	Points3D.push_back(cv::Point3f(2.8632, 195.8575, 97.2249));		//P13
+	Points3D.push_back(cv::Point3f(1.2543, 296.5173, 98.4156));		//P19
+
+	Points3D.push_back(cv::Point3f(-79.9799, -2.7329, 100.5745));		//P2
+	Points3D.push_back(cv::Point3f(-78.2473, 95.0462, 98.4001));		//P8
+	Points3D.push_back(cv::Point3f(-76.9879, 194.703, 98.1159));		//P14
+	Points3D.push_back(cv::Point3f(-78.9254, 295.4227, 98.3087));		//P20
+
+	Points3D.push_back(cv::Point3f(-159.9838, -4.947, 98.9121));		//P3
+	Points3D.push_back(cv::Point3f(-158.652, 43.833, -0.29));		//P6
+	Points3D.push_back(cv::Point3f(-158.3842, 94.9418, 98.4764));	//P9
+	Points3D.push_back(cv::Point3f(-158.8815, 143.7132, -0.2839));		//P12
+	Points3D.push_back(cv::Point3f(-157.2452, 194.4011, 98.2977));//P15
+	Points3D.push_back(cv::Point3f(-158.335, 244.0331, -0.3264));		//P18
+	Points3D.push_back(cv::Point3f(-158.9172, 294.2362, 97.96));	//P21
+	Points3D.push_back(cv::Point3f(-158.6595, 343.6634, -0.3606));		//P24
+	Points3D.push_back(cv::Point3f(-158.4649, 393.7914, -0.3087));		//P25
+
+	Points3D.push_back(cv::Point3f(-239.8114, -7.152, 98.02));			//P4
+	Points3D.push_back(cv::Point3f(-238.1499, 93.75, 99.5081));		//P10
+	Points3D.push_back(cv::Point3f(-237.1045, 193.1765, 99.8652));		//P16
+	Points3D.push_back(cv::Point3f(-238.6392, 292.6553, 98.5948));		//P22
+
+	Points3D.push_back(cv::Point3f(-319.6314, -9.5875, 96.7155));			//P5
+	Points3D.push_back(cv::Point3f(-317.9415, 93.6005, 100.1003));		//P11
+	Points3D.push_back(cv::Point3f(-316.9851, 192.9369, 100.8416));		//P17
+	Points3D.push_back(cv::Point3f(-318.6672, 291.5628, 98.9174));		//P23
+
+																		//Points3D.push_back(cv::Point3f(47.5789, 407.1668, 169.8168));//P1 三维坐标的单位是毫米
+																		//Points3D.push_back(cv::Point3f(141.3161, 392.2496, 182.3110));		//P7
+																		//Points3D.push_back(cv::Point3f(240.0176, 378.1010, 192.4528));		//P13
+																		//Points3D.push_back(cv::Point3f(339.3242, 363.0495, 199.3860));		//P19
+
+																		//Points3D.push_back(cv::Point3f(40.2834, 345.5651, 119.2408));		//P2
+																		//Points3D.push_back(cv::Point3f(136.3951, 331.3753, 130.6281));		//P8
+																		//Points3D.push_back(cv::Point3f(234.6343, 317.7378, 140.4371));		//P14
+																		//Points3D.push_back(cv::Point3f(333.8219, 301.8001, 147.9250));		//P20
+
+																		//Points3D.push_back(cv::Point3f(33.4381, 283.6361, 68.9792));		//P3
+																		//Points3D.push_back(cv::Point3f(65.6843, 215.3452, 149.7186));		//P6
+																		//Points3D.push_back(cv::Point3f(131.9004, 270.1303, 79.1423));	//P9
+																		//Points3D.push_back(cv::Point3f(164.1084, 200.7185, 158.3707));		//P12
+																		//Points3D.push_back(cv::Point3f(229.9553, 256.4955, 88.7762));	//P15
+																		//Points3D.push_back(cv::Point3f(263.0007, 186.5913, 167.5965));		//P18
+																		//Points3D.push_back(cv::Point3f(328.2006, 240.5560, 96.7608));	//P21
+																		//Points3D.push_back(cv::Point3f(361.1669, 171.9028, 176.1964));		//P24
+																		//Points3D.push_back(cv::Point3f(410.5890, 164.8296, 180.7003));		//P25
+
+																		//Points3D.push_back(cv::Point3f(26.7349, 222.3241, 18.2446));			//P4
+																		//Points3D.push_back(cv::Point3f(126.5076, 209.9261, 27.0709));		//P10
+																		//Points3D.push_back(cv::Point3f(224.6109, 196.5607, 36.2336));		//P16
+																		//Points3D.push_back(cv::Point3f(322.3630, 180.1925, 44.9855));		//P22
+
+																		//Points3D.push_back(cv::Point3f(19.7389, 160.7924, -32.1913));			//P5
+																		//Points3D.push_back(cv::Point3f(122.0701, 149.2756, -24.5904));		//P11
+																		//Points3D.push_back(cv::Point3f(220.1413, 136.0962, -15.7854));		//P17
+																		//Points3D.push_back(cv::Point3f(316.9400, 119.3284, -6.7051));		//P23
+
+	//Z形13个点
+	Points2D.erase(Points2D.begin() + 1, Points2D.begin() + 3);
+	Points2D.erase(Points2D.begin() + 3, Points2D.begin() + 4);
+	Points2D.erase(Points2D.begin() + 6, Points2D.begin() + 8);
+	Points2D.erase(Points2D.begin() + 7, Points2D.begin() + 9);
+	Points2D.erase(Points2D.begin() + 8, Points2D.begin() + 10);
+	Points2D.erase(Points2D.begin() + 10, Points2D.begin() + 11);
+	Points2D.erase(Points2D.begin() + 12, Points2D.begin() + 14);
+
+	Points3D.erase(Points3D.begin() + 1, Points3D.begin() + 3);
+	Points3D.erase(Points3D.begin() + 3, Points3D.begin() + 4);
+	Points3D.erase(Points3D.begin() + 6, Points3D.begin() + 8);
+	Points3D.erase(Points3D.begin() + 7, Points3D.begin() + 9);
+	Points3D.erase(Points3D.begin() + 8, Points3D.begin() + 10);
+	Points3D.erase(Points3D.begin() + 10, Points3D.begin() + 11);
+	Points3D.erase(Points3D.begin() + 12, Points3D.begin() + 14);
+
+
+
+	/*m_str.Format("2D数组个数: %d，3D数组个数: %d", Points2D.size(), Points3D.size());
+	pEdit->AddString(m_str);*/
+
+	//初始化输出矩阵
+	cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
+	cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+
+	//三种方法求解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);	//实测迭代法似乎只能用4个共面特征点求解，5个点或非共面4点解不出正确的解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_P3P);			//Gao的方法可以使用任意四个特征点，特征点数量不能少于4也不能多于4
+	solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_EPNP);			//该方法可以用于N点位姿估计
+
+																								//旋转向量变旋转矩阵
+																								//提取旋转矩阵
+	double rm[9];
+	cv::Mat rotM(3, 3, CV_64FC1, rm);
+	Rodrigues(rvec, rotM);
+	double r11 = rotM.ptr<double>(0)[0];
+	double r12 = rotM.ptr<double>(0)[1];
+	double r13 = rotM.ptr<double>(0)[2];
+	double r21 = rotM.ptr<double>(1)[0];
+	double r22 = rotM.ptr<double>(1)[1];
+	double r23 = rotM.ptr<double>(1)[2];
+	double r31 = rotM.ptr<double>(2)[0];
+	double r32 = rotM.ptr<double>(2)[1];
+	double r33 = rotM.ptr<double>(2)[2];
+
+	/*************************************此处计算出相机的旋转角**********************************************/
+	//计算出相机坐标系的三轴旋转欧拉角，旋转后可以转出世界坐标系。
+	//旋转顺序为z、y、x
+	//原理见帖子：
+	double thetaz = atan2(r21, r11) / CV_PI * 180;
+	double thetay = atan2(-1 * r31, sqrt(r32*r32 + r33 * r33)) / CV_PI * 180;
+	double thetax = atan2(r32, r33) / CV_PI * 180;
+	double thetaz_out = -thetaz;
+	double thetay_out = -thetay;
+	double thetax_out = -thetax;
+
+	//ofstream fout("D:\\pnp_theta.txt");
+	//fout << -1 * thetax << endl << -1 * thetay << endl << -1 * thetaz << endl;
+	////cout << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
+	//fout.close();
+
+	m_str.Format("相机的三轴旋转角 x: %f, y: %f, z: %f", thetax_out, thetay_out, thetaz_out);
+	pEdit->AddString(m_str);
+	/*************************************此处计算出相机的旋转角END**********************************************/
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置**********************************************/
+	/* 当原始坐标系经过旋转z、y、x三次旋转后，会与世界坐标系完全平行，而三次旋转中向量OcOw会跟着旋转 */
+	/* 而我们想知道的是两个坐标系完全平行时，OcOw的值 */
+	/* 因此，原始坐标系每次旋转完成后，对向量OcOw进行一次反相旋转，最终可以得到两个坐标系完全平行时的OcOw */
+	/* 该向量乘以-1就是世界坐标系下相机的坐标 */
+	/***********************************************************************************/
+
+	//提出平移矩阵，表示从相机坐标系原点，跟着向量(x,y,z)走，就到了世界坐标系原点
+	double tx = tvec.ptr<double>(0)[0];
+	double ty = tvec.ptr<double>(0)[1];
+	double tz = tvec.ptr<double>(0)[2];
+
+	//x y z 为唯一向量在相机原始坐标系下的向量值
+	//也就是向量OcOw在相机坐标系下的值
+	double x = tx, y = ty, z = tz;
+
+	//进行三次反向旋转
+	codeRotateByZ(x, y, -1 * thetaz, x, y);
+	codeRotateByY(x, z, -1 * thetay, x, z);
+	codeRotateByX(y, z, -1 * thetax, y, z);
+
+	//获得相机在世界坐标系下的位置坐标
+	//即向量OcOw在世界坐标系下的值
+	double Cx = x * -1;
+	double Cy = y * -1;
+	double Cz = z * -1;
+	displacement = sqrt(pow((Cx_Z13 - Cx), 2) + pow((Cy_Z13 - Cy), 2) + pow((Cz_Z13 - Cz), 2));
+	//ofstream fout2("D:\\pnp_t.txt");
+	//fout2 << Cx << std::endl << Cy << endl << Cz << endl;
+	////cout << "相机的世界坐标：" << Cx << ", " << Cy << ", " << Cz << endl;
+	//fout2.close();
+
+	m_str.Format("相机的世界坐标 x: %lf, y: %lf, z: %lf", Cx, Cy, Cz);
+	pEdit->AddString(m_str);
+
+	m_str.Format("求解Δd:  %lf", displacement);
+	pEdit->AddString(m_str);
+
+	pEdit->SetCurSel(pEdit->GetCount() - 1);
+	Cx_Z13 = Cx;
+	Cy_Z13 = Cy;
+	Cz_Z13 = Cz;
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置END**********************************************/
+
+	//重投影测试位姿解是否正确
+	std::vector<cv::Point2f> projectedPoints;
+	Points3D.push_back(cv::Point3f(0, 100, 105));
+	cv::projectPoints(Points3D, rvec, tvec, cameraMatrix, distCoeffs, projectedPoints);
+}
+
 
 void CvSlovePNP::SloveP3P()
 {
@@ -437,6 +1709,7 @@ void CvSlovePNP::SloveP3P()
 
 	m_str.Format("求解Δd:  %lf", displacement);
 	pEdit->AddString(m_str);
+
 	pEdit->SetCurSel(pEdit->GetCount() - 1);
 	Cx_P3P = Cx;
 	Cy_P3P = Cy;

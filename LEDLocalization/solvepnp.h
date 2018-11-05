@@ -4,7 +4,13 @@ class CvSlovePNP
 
 public:
 	void SloveEPNP_NEW15();
-
+	void SloveEPNP_Z13();
+	void SloveEPNP_L14();
+	void SloveEPNP_LINE9();
+	void SloveEPNP_LINE7();
+	void SloveEPNP_ANGLE7();
+	void SloveEPNP_ANGLE9();
+	void SloveEPNP_ANGLE15();
 
 	void SloveIterative();
 	void SloveP3P();
