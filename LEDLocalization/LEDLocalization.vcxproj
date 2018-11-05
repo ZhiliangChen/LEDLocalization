@@ -87,7 +87,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>D:\!research\GO SDK 3.0.3\library\CPP\include;D:\!research\SDK\x64\include;D:\!research\opencv\build\include;D:\!research\opencv\build\include\opencv;D:\!research\opencv\build\include\opencv2;C:\SDK\MVC1000MF\x64\include;C:\SDK\opencv\build\include;C:\SDK\opencv\build\include\opencv;C:\SDK\opencv\build\include\opencv2;$(IncludePath)</IncludePath>
+    <IncludePath>D:\!research\code\GitHub\LEDLocalization\ros_lib;D:\!research\GO SDK 3.0.3\library\CPP\include;D:\!research\SDK\x64\include;D:\!research\opencv\build\include;D:\!research\opencv\build\include\opencv;D:\!research\opencv\build\include\opencv2;C:\SDK\MVC1000MF\x64\include;C:\SDK\opencv\build\include;C:\SDK\opencv\build\include\opencv;C:\SDK\opencv\build\include\opencv2;$(IncludePath)</IncludePath>
     <LibraryPath>D:\!research\GO SDK 3.0.3\library\CPP\lib\Win64_x64;D:\!research\opencv\build\x64\vc15\lib;D:\!research\SDK\x64\lib;C:\SDK\MVC1000MF\x64\lib;C:\SDK\opencv\build\x64\vc15\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -189,6 +189,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\ros_lib\ros.h" />
+    <ClInclude Include="..\ros_lib\WindowsSocket.h" />
     <ClInclude Include="calibrate.h" />
     <ClInclude Include="imageXY.h" />
     <ClInclude Include="LEDLocalization.h" />
@@ -199,6 +201,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\ros_lib\time.cpp" />
+    <ClCompile Include="..\ros_lib\WindowsSocket.cpp" />
     <ClCompile Include="calibrate.cpp" />
     <ClCompile Include="imageXY.cpp" />
     <ClCompile Include="LEDLocalization.cpp" />

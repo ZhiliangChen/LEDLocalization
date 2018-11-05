@@ -39,6 +39,12 @@
     <ClInclude Include="solvepnp.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="..\ros_lib\ros.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ros_lib\WindowsSocket.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LEDLocalization.cpp">
@@ -57,6 +63,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="solvepnp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ros_lib\time.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ros_lib\WindowsSocket.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
