@@ -1,6 +1,6 @@
 #ifndef _ROS_rosserial_msgs_Log_h
 #define _ROS_rosserial_msgs_Log_h
-#include "stdafx.h"
+
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
@@ -19,7 +19,7 @@ namespace rosserial_msgs
       enum { ROSDEBUG = 0 };
       enum { INFO = 1 };
       enum { WARN = 2 };
-      enum { LOG_ERROR = 3 };
+      enum { ERROR_LOG = 3 };
       enum { FATAL = 4 };
 
     Log():

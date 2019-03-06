@@ -10,6 +10,10 @@
 #include "resource.h"//临时用，引用控件名
 
 using namespace std;
+//AGV全局变量
+int slove_index = 0;
+double thetay_out_AGV, Cx_AGV, Cz_AGV, Cy_AGV;
+
 double Cx_pre7, Cy_pre7, Cz_pre7, Cx_pre8, Cy_pre8, Cz_pre8, 
 	   Cx_pre9, Cy_pre9, Cz_pre9, Cx_pre10, Cy_pre10, Cz_pre10,
 	   Cx_pre11, Cy_pre11, Cz_pre11, Cx_pre12, Cy_pre12, Cz_pre12,
@@ -40,6 +44,7 @@ double Cx_new15, Cy_new15, Cz_new15,
 		Cx_ANGLE7, Cy_ANGLE7, Cz_ANGLE7, Cx_ANGLE15, Cy_ANGLE15, Cz_ANGLE15,
 		Cx_ANGLE9, Cy_ANGLE9, Cz_ANGLE9;
 double thetax_new15, thetay_new15, thetaz_new15;
+double Cthetay_out_AGV;
 
 //将空间点绕Z轴旋转
 //输入参数 x y为空间点原始x y坐标
@@ -118,6 +123,205 @@ void CvSlovePNP::Test()
 	}
 
 }
+void CvSlovePNP::SloveEPNP_AGV15()
+{
+	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);
+
+	std::vector<cv::Point2f> Points2D;
+	std::vector<cv::Point2f> temp;
+
+
+	for (int i = 0; i<25; i++)
+	{
+		Points2D.push_back(detectKeyPoint[i].pt);
+	}
+	std::sort(Points2D.begin(), Points2D.end(), compare_y);//按y坐标值大小升序排列
+	std::sort(Points2D.begin(), Points2D.begin() + 5, compare_x);//y坐标值最小的5个点，按照x坐标值升序排列
+	std::sort(Points2D.begin() + 6, Points2D.begin() + 11, compare_x);
+	std::sort(Points2D.begin() + 12, Points2D.begin() + 17, compare_x);
+	std::sort(Points2D.begin() + 18, Points2D.begin() + 23, compare_x);
+	
+	float size_ii;
+	std::ofstream fout_point("D:\\!research\\code\\GitHub\\LEDLocalization\\keypoint.txt", std::ios::app);
+	for (size_ii = 0; size_ii<25; size_ii++)
+	{
+		fout_point << "循环: " << slove_index << " X: " << Points2D[size_ii].x << ", " << "Y: " << Points2D[size_ii].y << std::endl;
+	}
+	
+	fout_point.close();
+
+	//特征点世界坐标
+	std::vector<cv::Point3f> Points3D;
+	Points3D.push_back(cv::Point3f(0, 0, 101.8642));//P1 三维坐标的单位是毫米
+	Points3D.push_back(cv::Point3f(-79.9799, -2.7329, 100.5745));		//P2
+	Points3D.push_back(cv::Point3f(-159.9838, -4.947, 98.9121));		//P3
+	Points3D.push_back(cv::Point3f(-239.8114, -7.152, 98.02));			//P4
+	Points3D.push_back(cv::Point3f(-319.6314, -9.5875, 96.7155));		//P5
+	Points3D.push_back(cv::Point3f(-158.652, 43.833, -0.29));			//P6
+	Points3D.push_back(cv::Point3f(1.7559, 95.6418, 98.0094));			//P7
+	Points3D.push_back(cv::Point3f(-78.2473, 95.0462, 98.4001));		//P8
+	Points3D.push_back(cv::Point3f(-158.3842, 94.9418, 98.4764));		//P9
+	Points3D.push_back(cv::Point3f(-238.1499, 93.75, 99.5081));			//P10
+	Points3D.push_back(cv::Point3f(-317.9415, 93.6005, 100.1003));		//P11
+	Points3D.push_back(cv::Point3f(-158.8815, 143.7132, -0.2839));		//P12
+	Points3D.push_back(cv::Point3f(2.8632, 195.8575, 97.2249));			//P13
+	Points3D.push_back(cv::Point3f(-76.9879, 194.703, 98.1159));		//P14
+	Points3D.push_back(cv::Point3f(-157.2452, 194.4011, 98.2977));		//P15
+	Points3D.push_back(cv::Point3f(-237.1045, 193.1765, 99.8652));		//P16
+	Points3D.push_back(cv::Point3f(-316.9851, 192.9369, 100.8416));		//P17
+	Points3D.push_back(cv::Point3f(-158.335, 244.0331, -0.3264));		//P18
+	Points3D.push_back(cv::Point3f(1.2543, 296.5173, 98.4156));			//P19
+	Points3D.push_back(cv::Point3f(-78.9254, 295.4227, 98.3087));		//P20
+	Points3D.push_back(cv::Point3f(-158.9172, 294.2362, 97.96));		//P21
+	Points3D.push_back(cv::Point3f(-238.6392, 292.6553, 98.5948));		//P22
+	Points3D.push_back(cv::Point3f(-318.6672, 291.5628, 98.9174));		//P23
+	Points3D.push_back(cv::Point3f(-158.6595, 343.6634, -0.3606));		//P24
+	Points3D.push_back(cv::Point3f(-158.4649, 393.7914, -0.3087));		//P25
+
+
+																		//取中间7个点
+	Points2D.erase(Points2D.begin(), Points2D.begin() + 1);
+	Points2D.erase(Points2D.begin() + 3, Points2D.begin() + 4);
+	Points2D.erase(Points2D.begin() + 4, Points2D.begin() + 5);
+	Points2D.erase(Points2D.begin() + 7, Points2D.begin() + 8);
+	Points2D.erase(Points2D.begin() + 8, Points2D.begin() + 9);
+	Points2D.erase(Points2D.begin() + 11, Points2D.begin() + 12);
+	Points2D.erase(Points2D.begin() + 12, Points2D.begin() + 13);
+	Points2D.erase(Points2D.begin() + 15, Points2D.end());
+
+
+	Points3D.erase(Points3D.begin(), Points3D.begin() + 1);
+	Points3D.erase(Points3D.begin() + 3, Points3D.begin() + 4);
+	Points3D.erase(Points3D.begin() + 4, Points3D.begin() + 5);
+	Points3D.erase(Points3D.begin() + 7, Points3D.begin() + 8);
+	Points3D.erase(Points3D.begin() + 8, Points3D.begin() + 9);
+	Points3D.erase(Points3D.begin() + 11, Points3D.begin() + 12);
+	Points3D.erase(Points3D.begin() + 12, Points3D.begin() + 13);
+	Points3D.erase(Points3D.begin() + 15, Points3D.end());
+
+	/*m_str.Format("2D数组个数: %d，3D数组个数: %d", Points2D.size(), Points3D.size());
+	pEdit->AddString(m_str);*/
+
+	//初始化输出矩阵
+	cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);
+	cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);
+
+	//三种方法求解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_ITERATIVE);	//实测迭代法似乎只能用4个共面特征点求解，5个点或非共面4点解不出正确的解
+	//solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_P3P);			//Gao的方法可以使用任意四个特征点，特征点数量不能少于4也不能多于4
+	solvePnP(Points3D, Points2D, cameraMatrix, distCoeffs, rvec, tvec, false, CV_EPNP);			//该方法可以用于N点位姿估计
+
+																								//旋转向量变旋转矩阵
+																								//提取旋转矩阵
+	double rm[9];
+	cv::Mat rotM(3, 3, CV_64FC1, rm);
+	Rodrigues(rvec, rotM);
+	double r11 = rotM.ptr<double>(0)[0];
+	double r12 = rotM.ptr<double>(0)[1];
+	double r13 = rotM.ptr<double>(0)[2];
+	double r21 = rotM.ptr<double>(1)[0];
+	double r22 = rotM.ptr<double>(1)[1];
+	double r23 = rotM.ptr<double>(1)[2];
+	double r31 = rotM.ptr<double>(2)[0];
+	double r32 = rotM.ptr<double>(2)[1];
+	double r33 = rotM.ptr<double>(2)[2];
+
+	/*************************************此处计算出相机的旋转角**********************************************/
+	//计算出相机坐标系的三轴旋转欧拉角，旋转后可以转出世界坐标系。
+	//旋转顺序为z、y、x
+	//原理见帖子：
+	double thetaz = atan2(r21, r11) / CV_PI * 180;
+	double thetay = atan2(-1 * r31, sqrt(r32*r32 + r33 * r33)) / CV_PI * 180;
+	double thetax = atan2(r32, r33) / CV_PI * 180;
+	double thetaz_out = -thetaz;
+	
+	double thetax_out = -thetax;
+	thetay_out_AGV = -thetay;
+	ofstream fout("D:\\!research\\code\\GitHub\\LEDLocalization\\pnp_data.txt",ios::app);
+	fout << "循环: " << slove_index << "相机的三轴旋转角：" << -1 * thetax << ", " << -1 * thetay << ", " << -1 * thetaz << endl;
+
+	//if (thetay_out_AGV > 90)
+	//{
+	//	thetay_out_AGV = thetay_out_AGV - 180;
+	//}
+
+
+	m_str.Format("相机的三轴旋转角 x: %f, y: %f, z: %f", thetax_out, thetay_out_AGV, thetaz_out);
+	pEdit->AddString(m_str);
+	/*************************************此处计算出相机的旋转角END**********************************************/
+
+	/*************************************此处计算出相机坐标系原点Oc在世界坐标系中的位置**********************************************/
+	/* 当原始坐标系经过旋转z、y、x三次旋转后，会与世界坐标系完全平行，而三次旋转中向量OcOw会跟着旋转 */
+	/* 而我们想知道的是两个坐标系完全平行时，OcOw的值 */
+	/* 因此，原始坐标系每次旋转完成后，对向量OcOw进行一次反相旋转，最终可以得到两个坐标系完全平行时的OcOw */
+	/* 该向量乘以-1就是世界坐标系下相机的坐标 */
+	/***********************************************************************************/
+
+	//提出平移矩阵，表示从相机坐标系原点，跟着向量(x,y,z)走，就到了世界坐标系原点
+	double tx = tvec.ptr<double>(0)[0];
+	double ty = tvec.ptr<double>(0)[1];
+	double tz = tvec.ptr<double>(0)[2];
+
+	//x y z 为唯一向量在相机原始坐标系下的向量值
+	//也就是向量OcOw在相机坐标系下的值
+	double x = tx, y = ty, z = tz;
+
+	//进行三次反向旋转
+	codeRotateByZ(x, y, -1 * thetaz, x, y);
+	codeRotateByY(x, z, -1 * thetay, x, z);
+	codeRotateByX(y, z, -1 * thetax, y, z);
+
+
+
+	if (detectKeyPoint[24].pt.x = 0)
+	{
+		/*Thread_flag = 2;
+		Cx_AGV = Cx_ANGLE15;
+		Cy_AGV = Cy_ANGLE15;
+		Cz_AGV = Cz_ANGLE15;
+		thetay_out_AGV = Cthetay_out_AGV;*/
+	}
+
+	//获得相机在世界坐标系下的位置坐标
+	//即向量OcOw在世界坐标系下的值
+	Cx_AGV = x * -1;
+	Cy_AGV = y * -1;
+	Cz_AGV = z * -1;
+
+	displacement = sqrt(pow((Cx_ANGLE15 - Cx_AGV), 2) + pow((Cy_ANGLE15 - Cy_AGV), 2) + pow((Cz_ANGLE15 - Cz_AGV), 2));
+
+	fout << "循环: " << slove_index << "相机的世界坐标：" << Cx_AGV << ", " << Cy_AGV << ", " << Cz_AGV << endl;
+	fout << "循环: " << slove_index << "求解Δd：" << displacement << endl;
+	fout.close();
+
+	
+	//if (displacement > 100)
+	//{
+	//	
+	//	Cx_AGV = Cx_ANGLE15;
+	//	Cy_AGV = Cy_ANGLE15;
+	//	Cz_AGV = Cz_ANGLE15;
+	//	thetay_out_AGV = Cthetay_out_AGV;
+	//}
+
+	m_str.Format("相机的世界坐标 x: %lf, y: %lf, z: %lf", Cx_AGV, Cy_AGV, Cz_AGV);
+	pEdit->AddString(m_str);
+
+	m_str.Format("次数： %d，求解Δd:  %lf", slove_index, displacement);
+	pEdit->AddString(m_str);
+
+	pEdit->SetCurSel(pEdit->GetCount() - 1);
+	
+	Cx_ANGLE15 = Cx_AGV;
+	Cy_ANGLE15 = Cy_AGV;
+	Cz_ANGLE15 = Cz_AGV;
+	Cthetay_out_AGV = thetay_out_AGV;
+	//detectKeyPoint[24].pt.x = 0;
+	slove_index++;
+}
+
+
+
 void CvSlovePNP::SloveEPNP_ANGLE7()
 {
 	CListBox *pEdit = (CListBox*)g_pWnd->GetDlgItem(IDC_LISTMSG);

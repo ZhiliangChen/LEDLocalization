@@ -36,9 +36,10 @@ public:
 	void SloveEPNP_asymmetric6_2();
 	void SloveEPNP_asymmetric6_1();
 	void SloveEPNP_asymmetric6_0();
-	
+	void SloveEPNP_AGV15();
 	void Test();
 	double displacement;
 
 	CString m_str;
 };
+extern double thetay_out_AGV, Cx_AGV, Cz_AGV, Cy_AGV;

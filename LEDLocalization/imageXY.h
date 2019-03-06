@@ -6,10 +6,11 @@ class CvImageXY
 public:
 
 	void BlobDetector_NEW();
+	void BlobDetector_AGV();
 	void ShowImage();
 	
 	void BlobDetector();
-	void BlobDetector_threshold();
+	void BlobDetector_test();
 	void BlobDetector_static();
 	void Test();
 	IplImage* img;
